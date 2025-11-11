@@ -16,6 +16,7 @@ import json
 from dataclasses import dataclass
 
 from goldenverba.components.conversation_manager import ConversationManager
+from goldenverba.components.resume_exporter import ResumeExporter
 
 
 @dataclass
@@ -109,6 +110,7 @@ class ResumeGenerator:
         self.document_collection = document_collection
         self.chunk_collection = chunk_collection
         self.conversation_manager = ConversationManager(max_exchanges=max_exchanges)
+        self.exporter = ResumeExporter()
         msg.good(f"ResumeGenerator initialized with ConversationManager (max_exchanges={max_exchanges})")
     
     async def extract_job_requirements(
@@ -645,7 +647,9 @@ Generate the refined resume now:"""
     def format_resume(
         self,
         resume: Resume,
-        target_format: str
+        target_format: str,
+        title: Optional[str] = None,
+        author: Optional[str] = None
     ) -> bytes:
         """
         Export resume in specified format (markdown, PDF, or DOCX).
@@ -653,6 +657,8 @@ Generate the refined resume now:"""
         Args:
             resume: The resume to format
             target_format: Target format (markdown, pdf, docx)
+            title: Optional document title
+            author: Optional author name
             
         Returns:
             bytes: Formatted resume content
@@ -661,22 +667,27 @@ Generate the refined resume now:"""
             Exception: If formatting fails or format is unsupported
         """
         try:
-            if target_format.lower() == "markdown":
-                # Return markdown as UTF-8 bytes
-                return resume.content.encode('utf-8')
+            format_lower = target_format.lower()
             
-            elif target_format.lower() == "pdf":
-                # PDF export will be implemented in task 20.1
-                msg.warn("PDF export not yet implemented")
-                raise NotImplementedError("PDF export will be implemented in task 20.1")
+            if format_lower == "markdown" or format_lower == "md":
+                return self.exporter.export_to_markdown(resume.content)
             
-            elif target_format.lower() == "docx":
-                # DOCX export will be implemented in task 20.2
-                msg.warn("DOCX export not yet implemented")
-                raise NotImplementedError("DOCX export will be implemented in task 20.2")
+            elif format_lower == "pdf":
+                return self.exporter.export_to_pdf(
+                    content=resume.content,
+                    title=title or "Resume",
+                    author=author
+                )
+            
+            elif format_lower == "docx" or format_lower == "doc":
+                return self.exporter.export_to_docx(
+                    content=resume.content,
+                    title=title or "Resume",
+                    author=author
+                )
             
             else:
-                raise ValueError(f"Unsupported format: {target_format}")
+                raise ValueError(f"Unsupported format: {target_format}. Supported formats: markdown, pdf, docx")
                 
         except Exception as e:
             msg.fail(f"Failed to format resume: {str(e)}")

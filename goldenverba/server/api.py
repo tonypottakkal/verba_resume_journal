@@ -2152,7 +2152,9 @@ async def export_resume(resume_id: str, payload: ExportResumePayload):
         # Format the resume content
         file_bytes = resume_generator.format_resume(
             resume=resume,
-            target_format=payload.format
+            target_format=payload.format,
+            title=f"Resume - {record.target_role}",
+            author=payload.author
         )
         
         # Determine file extension and media type

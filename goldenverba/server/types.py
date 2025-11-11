@@ -362,6 +362,7 @@ class ExportResumePayload(BaseModel):
     credentials: Credentials
     resume_id: str
     format: Literal["pdf", "docx", "markdown"]
+    author: str | None = None
 
 
 class CreateConversationSessionPayload(BaseModel):
