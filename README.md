@@ -1,6 +1,38 @@
-# Local Resume System
+# Local Resume System Project
 
-## AI-Powered Professional Development Platform
+## Table of Contents
+
+- [Project Description](#project-description)
+  - [AI-Powered Professional Development Platform](#ai-powered-professional-development-platform)
+  - [🎯 What Makes This Different](#-what-makes-this-different)
+  - [🚀 Key Capabilities](#-key-capabilities)
+  - [🏗️ Architecture](#️-architecture)
+  - [💡 Use Cases](#-use-cases)
+  - [🙏 Credits & Inspiration](#-credits--inspiration)
+- [Verba](#verba)
+  - [🎯 What Is Verba?](#what-is-verba)
+  - [✨ Features](#feature-lists)
+- [✨ Getting Started with Verba](#getting-started-with-verba)
+- [🔑 API Keys](#api-keys)
+  - [Weaviate](#weaviate)
+  - [Ollama](#ollama)
+  - [Unstructured](#unstructured)
+  - [AssemblyAI](#assemblyai)
+  - [OpenAI](#openai)
+  - [HuggingFace](#huggingface)
+  - [Groq](#groq)
+  - [Novita AI](#novitaai)
+- [Quickstart: Deploy with pip](#how-to-deploy-with-pip)
+- [Quickstart: Build from Source](#how-to-build-from-source)
+- [Quickstart: Deploy with Docker](#how-to-install-verba-with-docker)
+- [💾 Verba Walkthrough](#️verba-walkthrough)
+- [💖 Open Source Contribution](#open-source-contribution)
+- [📚 Supplemental Documentation](#supplemental-documentation)
+- [🚩 Known Issues](#known-issues)
+- [❔FAQ](#faq)
+
+# Project Description:
+## AI-Powered Professional Development Platform 
 
 **An intelligent work journal and resume generation system powered by Retrieval-Augmented Generation (RAG) and Large Language Models**
 
@@ -80,28 +112,6 @@ pip install goldenverba
 ```
 
 ![Demo of Verba](https://github.com/weaviate/Verba/blob/2.0.0/img/verba.gif)
-
-- [Verba](#verba)
-  - [🎯 What Is Verba?](#what-is-verba)
-  - [✨ Features](#feature-lists)
-- [✨ Getting Started with Verba](#getting-started-with-verba)
-- [🔑 API Keys](#api-keys)
-  - [Weaviate](#weaviate)
-  - [Ollama](#ollama)
-  - [Unstructured](#unstructured)
-  - [AssemblyAI](#assemblyai)
-  - [OpenAI](#openai)
-  - [HuggingFace](#huggingface)
-  - [Groq](#groq)
-  - [Novita AI](#novitaai)
-- [Quickstart: Deploy with pip](#how-to-deploy-with-pip)
-- [Quickstart: Build from Source](#how-to-build-from-source)
-- [Quickstart: Deploy with Docker](#how-to-install-verba-with-docker)
-- [💾 Verba Walkthrough](#️verba-walkthrough)
-- [💖 Open Source Contribution](#open-source-contribution)
-- [📚 Supplemental Documentation](#supplemental-documentation)
-- [🚩 Known Issues](#known-issues)
-- [❔FAQ](#faq)
 
 ## What Is Verba?
 
@@ -264,7 +274,8 @@ Below is a comprehensive list of the API keys and variables you may require:
 | OLLAMA_MODEL           | Your Ollama Model                                          | Set the default Ollama model to use                                                                                           |
 | OLLAMA_EMBED_MODEL     | Your Ollama Embedding Model                                | Set the default Ollama embedding model to use                                                                                 |
 | **Resume-Specific Variables** | | |
-| SKILL_EXTRACTION_MODEL | Model name (e.g., gpt-4o-mini)                             | Model to use for extracting skills from work logs                                                                             |
+| ENABLE_SKILL_EXTRACTION | true, false (default: true)                               | Enable/disable automatic skill extraction during document ingestion                                                           |
+| SKILL_EXTRACTION_MODEL | Model name (e.g., gpt-4o-mini)                             | Model to use for extracting skills from work logs and documents                                                               |
 | SKILL_EXTRACTION_PROVIDER | OpenAI, Cohere, Ollama, Anthropic                       | Provider for skill extraction                                                                                                 |
 | RESUME_GENERATION_MODEL | Model name (e.g., gpt-4o)                                 | Model to use for generating tailored resumes                                                                                  |
 | RESUME_GENERATION_PROVIDER | OpenAI, Cohere, Ollama, Anthropic                      | Provider for resume generation                                                                                                |
@@ -533,12 +544,15 @@ Detailed documentation for specific features and implementations:
 
 - **[Metadata Filtering Implementation](./docs/METADATA_FILTERING_IMPLEMENTATION.md)** - Complete guide to the document metadata and tag filtering system implementation.
 
+- **[Skill Extraction on Document Ingestion](./docs/SKILL_EXTRACTION_ON_INGESTION.md)** - Comprehensive guide to the automatic skill extraction feature that runs as a post-processing hook during document ingestion. Covers the extraction process, skill categorization, proficiency scoring, and cleanup when documents are deleted.
+
 ### Resume-Specific Features
 
 This fork extends Verba with resume generation and work log management capabilities:
 
 **New Features:**
 - **Work Log Management** - Chat-style interface for logging daily work activities with automatic skill extraction
+- **Automatic Skill Extraction** - Post-processing hook that automatically extracts and categorizes skills from all ingested documents (not just work logs)
 - **Skills Analysis** - Interactive visualization of extracted skills with proficiency scoring and categorization
 - **Resume Generation** - AI-powered resume generation tailored to specific job descriptions using your work history
 - **Resume History** - Track and manage all generated resumes with regeneration and export capabilities

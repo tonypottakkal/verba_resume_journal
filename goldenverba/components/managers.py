@@ -484,6 +484,74 @@ class WeaviateManager:
                     await embedder_collection.data.delete_many(
                         where=Filter.by_property("doc_uuid").equal(uuid)
                     )
+                    
+                    # Clean up skills associated with this document
+                    await self._cleanup_document_skills(client, str(uuid))
+
+    async def _cleanup_document_skills(
+        self, client: WeaviateAsyncClient, document_uuid: str
+    ):
+        """
+        Clean up skills associated with a deleted document.
+        
+        This method removes the document reference from skills and deletes skills
+        that have no more document references.
+        
+        Args:
+            client: Weaviate async client instance
+            document_uuid: UUID of the deleted document
+        """
+        try:
+            skill_collection_name = "VERBA_Skill"
+            
+            # Check if skill collection exists
+            if not await client.collections.exists(skill_collection_name):
+                return
+            
+            skill_collection = client.collections.get(skill_collection_name)
+            
+            # Find all skills that reference this document
+            response = await skill_collection.query.fetch_objects(
+                filters=Filter.by_property("source_documents").contains_any([document_uuid]),
+                limit=1000
+            )
+            
+            if not response.objects:
+                msg.info(f"No skills found for document {document_uuid}")
+                return
+            
+            msg.info(f"Cleaning up {len(response.objects)} skills for document {document_uuid}")
+            
+            for skill_obj in response.objects:
+                skill_props = skill_obj.properties
+                source_docs = skill_props.get("source_documents", [])
+                
+                # Remove this document from the source_documents list
+                if document_uuid in source_docs:
+                    source_docs.remove(document_uuid)
+                
+                # If no more documents reference this skill, delete it
+                if len(source_docs) == 0:
+                    await skill_collection.data.delete_by_id(skill_obj.uuid)
+                    msg.info(f"Deleted skill {skill_props.get('name')} (no more references)")
+                else:
+                    # Update the skill with the new source_documents list
+                    # Also decrement occurrence_count
+                    occurrence_count = max(1, skill_props.get("occurrence_count", 1) - 1)
+                    
+                    await skill_collection.data.update(
+                        uuid=skill_obj.uuid,
+                        properties={
+                            "source_documents": source_docs,
+                            "occurrence_count": occurrence_count
+                        }
+                    )
+                    msg.info(f"Updated skill {skill_props.get('name')} (removed document reference)")
+            
+            msg.good(f"Successfully cleaned up skills for document {document_uuid}")
+            
+        except Exception as e:
+            msg.warn(f"Failed to cleanup skills for document {document_uuid}: {str(e)}")
 
     async def delete_all_documents(self, client: WeaviateAsyncClient):
         if await self.verify_collection(client, self.document_collection_name):

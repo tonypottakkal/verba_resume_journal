@@ -263,6 +263,11 @@ class VerbaManager:
                     )
                 )
                 await ingesting_task
+                
+                # Post-processing: Extract skills from ingested document
+                await self._extract_skills_from_document(
+                    client, document, currentFileConfig, logger
+                )
 
             await logger.send_report(
                 currentFileConfig.fileID,
@@ -285,6 +290,98 @@ class VerbaManager:
                 took=round(loop.time() - start_time, 2),
             )
             raise Exception(f"Import for {fileConfig.filename} failed: {str(e)}")
+
+    async def _extract_skills_from_document(
+        self,
+        client: WeaviateAsyncClient,
+        document: Document,
+        fileConfig: FileConfig,
+        logger: LoggerManager,
+    ):
+        """
+        Extract skills from an ingested document and store them in the Skill collection.
+        
+        This is a post-processing hook that runs after document ingestion to automatically
+        extract and categorize skills from the document content.
+        
+        Args:
+            client: Weaviate async client instance
+            document: The ingested document
+            fileConfig: File configuration containing RAG settings
+            logger: Logger for status updates
+        """
+        try:
+            # Check if skill extraction is enabled
+            skill_extraction_enabled = os.getenv("ENABLE_SKILL_EXTRACTION", "true").lower() == "true"
+            if not skill_extraction_enabled:
+                msg.info(f"Skill extraction disabled, skipping for {document.title}")
+                return
+            
+            msg.info(f"Extracting skills from document: {document.title}")
+            
+            # Combine document content from all chunks
+            document_text = document.metadata + "\n\n" + "\n\n".join(
+                [chunk.content for chunk in document.chunks]
+            )
+            
+            # Limit text length to avoid token limits (use first 10000 characters)
+            if len(document_text) > 10000:
+                document_text = document_text[:10000]
+                msg.info(f"Truncated document text to 10000 characters for skill extraction")
+            
+            # Get generator config for LLM calls
+            generator_config = fileConfig.rag_config.get("Generator", {})
+            if not generator_config or not generator_config.get("selected"):
+                msg.warn(f"No generator configured, skipping skill extraction for {document.title}")
+                return
+            
+            selected_generator = generator_config["selected"]
+            generator_component = generator_config.get("components", {}).get(selected_generator, {})
+            generator_settings = generator_component.get("config", {})
+            
+            # Extract skills using the SkillsExtractor
+            extracted_skills = await self.skills_extractor.extract_skills(
+                client=client,
+                text=document_text,
+                generator_config=generator_settings,
+                use_cache=True
+            )
+            
+            if not extracted_skills:
+                msg.info(f"No skills extracted from {document.title}")
+                return
+            
+            msg.good(f"Extracted {len(extracted_skills)} skills from {document.title}")
+            
+            # Categorize the extracted skills
+            categorized_skills = self.skills_extractor.categorize_skills(extracted_skills)
+            
+            # Get the document UUID from Weaviate (it was just imported)
+            document_uuid = await self.weaviate_manager.exist_document_name(
+                client, document.title
+            )
+            
+            if not document_uuid:
+                msg.warn(f"Could not find document UUID for {document.title}, using title as fallback")
+                document_uuid = document.title
+            
+            for category, skills in categorized_skills.items():
+                for skill_name in skills:
+                    try:
+                        await self.skills_extractor.store_or_update_skill(
+                            client=client,
+                            skill_name=skill_name,
+                            category=category,
+                            source_document_id=document_uuid
+                        )
+                    except Exception as skill_error:
+                        msg.warn(f"Failed to store skill '{skill_name}': {str(skill_error)}")
+            
+            msg.good(f"Successfully stored skills from {document.title}")
+            
+        except Exception as e:
+            # Don't fail the entire import if skill extraction fails
+            msg.warn(f"Skill extraction failed for {document.title}: {str(e)}")
 
     # Configuration
 
