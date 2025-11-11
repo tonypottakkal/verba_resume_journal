@@ -42,6 +42,9 @@ from goldenverba.server.types import (
     UpdateWorkLogPayload,
     DeleteWorkLogPayload,
     GetWorkLogByIdPayload,
+    GetSkillsPayload,
+    GetSkillCategoriesPayload,
+    ExtractSkillsPayload,
 )
 
 load_dotenv()
@@ -1148,5 +1151,186 @@ async def get_worklog_by_id(log_id: str, payload: GetWorkLogByIdPayload):
             content={
                 "error": f"Failed to retrieve work log entry: {str(e)}",
                 "worklog": None
+            }
+        )
+
+
+
+### SKILLS ANALYSIS ENDPOINTS
+
+
+@app.post("/api/skills")
+async def get_skills(payload: GetSkillsPayload):
+    """
+    Retrieve skills breakdown with optional filtering.
+    
+    Args:
+        payload: GetSkillsPayload containing filter criteria and credentials
+        
+    Returns:
+        JSONResponse with skills breakdown or error
+    """
+    try:
+        client = await client_manager.connect(payload.credentials)
+        
+        from goldenverba.components.skills_extractor import SkillsExtractor
+        from datetime import datetime
+        
+        skills_extractor = SkillsExtractor()
+        
+        # Parse dates if provided
+        start_dt = datetime.fromisoformat(payload.start_date) if payload.start_date else None
+        end_dt = datetime.fromisoformat(payload.end_date) if payload.end_date else None
+        
+        # Generate skills report with filters
+        report = await skills_extractor.aggregate_skills(
+            client=client,
+            start_date=start_dt,
+            end_date=end_dt,
+            category_filter=payload.category
+        )
+        
+        msg.info(f"Retrieved skills breakdown with {report.total_skills} total skills")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "error": "",
+                "skills_by_category": report.to_dict()["skills_by_category"],
+                "total_skills": report.total_skills,
+                "top_skills": report.to_dict()["top_skills"],
+                "recent_skills": report.to_dict()["recent_skills"],
+                "generated_at": report.generated_at.isoformat()
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to retrieve skills breakdown: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Failed to retrieve skills breakdown: {str(e)}",
+                "skills_by_category": {},
+                "total_skills": 0,
+                "top_skills": [],
+                "recent_skills": [],
+                "generated_at": datetime.now().isoformat()
+            }
+        )
+
+
+@app.post("/api/skills/categories")
+async def get_skill_categories(payload: GetSkillCategoriesPayload):
+    """
+    Retrieve list of skill categories.
+    
+    Args:
+        payload: GetSkillCategoriesPayload containing credentials
+        
+    Returns:
+        JSONResponse with skill categories or error
+    """
+    try:
+        # No need to connect to client for static categories
+        from goldenverba.components.skills_extractor import SKILL_CATEGORIES
+        
+        # Format categories with their example skills
+        categories = [
+            {
+                "name": category,
+                "display_name": category.replace("_", " ").title(),
+                "example_skills": skills[:5]  # First 5 skills as examples
+            }
+            for category, skills in SKILL_CATEGORIES.items()
+        ]
+        
+        msg.info(f"Retrieved {len(categories)} skill categories")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "error": "",
+                "categories": categories,
+                "total_categories": len(categories)
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to retrieve skill categories: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Failed to retrieve skill categories: {str(e)}",
+                "categories": [],
+                "total_categories": 0
+            }
+        )
+
+
+@app.post("/api/skills/extract")
+async def extract_skills(payload: ExtractSkillsPayload):
+    """
+    Extract skills from provided text on-demand.
+    
+    Args:
+        payload: ExtractSkillsPayload containing text and credentials
+        
+    Returns:
+        JSONResponse with extracted skills or error
+    """
+    if production == "Demo":
+        msg.warn("Can't extract skills when in Production Mode")
+        return JSONResponse(
+            status_code=403,
+            content={
+                "error": "Skill extraction is disabled in Demo mode",
+                "skills": [],
+                "categorized_skills": {}
+            }
+        )
+    
+    try:
+        client = await client_manager.connect(payload.credentials)
+        
+        from goldenverba.components.skills_extractor import SkillsExtractor
+        
+        skills_extractor = SkillsExtractor()
+        
+        # Get RAG config for generator settings
+        rag_config = await manager.load_rag_config(client)
+        generator_config = rag_config.get("Generator", {})
+        
+        # Extract skills from text
+        extracted_skills = await skills_extractor.extract_skills(
+            client=client,
+            text=payload.text,
+            generator_config=generator_config,
+            use_cache=payload.use_cache
+        )
+        
+        # Categorize the extracted skills
+        categorized_skills = skills_extractor.categorize_skills(extracted_skills)
+        
+        msg.good(f"Extracted {len(extracted_skills)} skills from text")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "error": "",
+                "skills": extracted_skills,
+                "categorized_skills": categorized_skills,
+                "total_skills": len(extracted_skills)
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to extract skills: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Failed to extract skills: {str(e)}",
+                "skills": [],
+                "categorized_skills": {},
+                "total_skills": 0
             }
         )

@@ -295,3 +295,22 @@ class DeleteWorkLogPayload(BaseModel):
 class GetWorkLogByIdPayload(BaseModel):
     log_id: str
     credentials: Credentials
+
+
+class GetSkillsPayload(BaseModel):
+    credentials: Credentials
+    start_date: str | None = None
+    end_date: str | None = None
+    category: str | None = None
+    limit: int = 100
+    offset: int = 0
+
+
+class GetSkillCategoriesPayload(BaseModel):
+    credentials: Credentials
+
+
+class ExtractSkillsPayload(BaseModel):
+    credentials: Credentials
+    text: str
+    use_cache: bool = True
