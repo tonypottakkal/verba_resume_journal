@@ -655,3 +655,64 @@ export const fetchAllSuggestions = async (
     return null;
   }
 };
+
+// Resume Configuration API Functions
+
+/**
+ * Save resume configuration to the backend
+ */
+export const saveResumeConfigToBackend = async (
+  config: any,
+  credentials: Credentials
+): Promise<boolean> => {
+  try {
+    const host = await detectHost();
+    const response = await fetch(`${host}/api/config/resume`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ config, credentials }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Failed to save resume config to backend:", error);
+    return false;
+  }
+};
+
+/**
+ * Load resume configuration from the backend
+ */
+export const loadResumeConfigFromBackend = async (
+  credentials: Credentials
+): Promise<any | null> => {
+  try {
+    const host = await detectHost();
+    const response = await fetch(`${host}/api/config/resume`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        // No config found, return null
+        return null;
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.config;
+  } catch (error) {
+    console.error("Failed to load resume config from backend:", error);
+    return null;
+  }
+};

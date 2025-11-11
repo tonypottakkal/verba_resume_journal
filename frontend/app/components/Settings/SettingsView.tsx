@@ -7,12 +7,14 @@ import { FaPaintBrush } from "react-icons/fa";
 import { BiSolidCommentError } from "react-icons/bi";
 import { IoLogOutSharp } from "react-icons/io5";
 import { IoChatboxEllipsesSharp } from "react-icons/io5";
+import { MdWorkOutline } from "react-icons/md";
 
 import VerbaButton from "../Navigation/VerbaButton";
 
 import { Theme, Themes, Credentials } from "@/app/types";
 
 import SettingsComponent from "./SettingsComponent";
+import ResumeConfigComponent from "./ResumeConfigComponent";
 
 import InfoComponent from "../Navigation/InfoComponent";
 import SuggestionView from "./SuggestionView";
@@ -39,7 +41,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
   credentials,
 }) => {
   const [settingMode, setSettingMode] = useState<
-    "INFO" | "ADMIN" | "THEME" | "SUGGESTIONS" | "CACHE"
+    "INFO" | "ADMIN" | "THEME" | "SUGGESTIONS" | "CACHE" | "RESUME"
   >("INFO");
 
   return (
@@ -75,6 +77,13 @@ const SettingsView: React.FC<SettingsViewProps> = ({
               selected={settingMode === "SUGGESTIONS"}
               selected_color="bg-secondary-verba"
               Icon={IoChatboxEllipsesSharp}
+            />
+            <VerbaButton
+              title="Resume Configuration"
+              onClick={() => setSettingMode("RESUME")}
+              selected={settingMode === "RESUME"}
+              selected_color="bg-secondary-verba"
+              Icon={MdWorkOutline}
             />
           </div>
           <div className="bg-bg-alt-verba gap-2 rounded-2xl flex flex-col p-6 w-full overflow-y-auto overflow-x-hidden">
@@ -118,6 +127,12 @@ const SettingsView: React.FC<SettingsViewProps> = ({
             )}
             {settingMode === "SUGGESTIONS" && (
               <SuggestionView
+                credentials={credentials}
+                addStatusMessage={addStatusMessage}
+              />
+            )}
+            {settingMode === "RESUME" && (
+              <ResumeConfigComponent
                 credentials={credentials}
                 addStatusMessage={addStatusMessage}
               />

@@ -649,3 +649,24 @@ export const WeaviateTheme: Theme = {
 export interface Themes {
   [key: string]: Theme;
 }
+
+// Resume Configuration Types
+export interface ResumeConfig {
+  skillExtraction: {
+    enabled: boolean;
+    model: string;
+    categories: string[];
+  };
+  resumeGeneration: {
+    model: string;
+    defaultFormat: "markdown" | "pdf" | "docx";
+    defaultSections: string[];
+    maxLength: number;
+  };
+  proficiencyCalculation: {
+    frequencyWeight: number;
+    contextWeight: number;
+    recencyWeight: number;
+    minOccurrences: number;
+  };
+}
