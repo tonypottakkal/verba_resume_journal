@@ -161,6 +161,17 @@ async def health_check():
     else:
         deployments = {"WEAVIATE_URL_VERBA": "", "WEAVIATE_API_KEY_VERBA": ""}
 
+    # Check new resume components status
+    resume_components = {
+        "worklog_manager": manager.worklog_manager is not None,
+        "skills_extractor": manager.skills_extractor is not None,
+        "resume_generator": manager.resume_generator is not None,
+        "resume_tracker": manager.resume_tracker is not None,
+        "skill_extraction_enabled": os.getenv("ENABLE_SKILL_EXTRACTION", "true").lower() == "true",
+        "resume_tracking_enabled": os.getenv("ENABLE_RESUME_TRACKING", "true").lower() == "true",
+        "pdf_export_enabled": os.getenv("ENABLE_PDF_EXPORT", "false").lower() == "true"
+    }
+    
     return JSONResponse(
         content={
             "message": "Alive!",
@@ -168,6 +179,7 @@ async def health_check():
             "gtag": tag,
             "deployments": deployments,
             "default_deployment": os.getenv("DEFAULT_DEPLOYMENT", ""),
+            "resume_components": resume_components
         }
     )
 

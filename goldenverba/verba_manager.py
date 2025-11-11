@@ -31,6 +31,10 @@ from goldenverba.components.managers import (
     WeaviateManager,
 )
 from goldenverba.components.schema_extensions import SchemaExtensions
+from goldenverba.components.worklog_manager import WorkLogManager
+from goldenverba.components.skills_extractor import SkillsExtractor
+from goldenverba.components.resume_generator import ResumeGenerator
+from goldenverba.components.resume_tracker import ResumeTracker
 
 load_dotenv()
 
@@ -46,9 +50,17 @@ class VerbaManager:
         self.generator_manager = GeneratorManager()
         self.weaviate_manager = WeaviateManager()
         self.schema_extensions = SchemaExtensions()
+        
+        # Initialize new resume-specific managers
+        self.worklog_manager = WorkLogManager()
+        self.skills_extractor = SkillsExtractor()
+        self.resume_generator = ResumeGenerator()
+        self.resume_tracker = ResumeTracker()
+        
         self.rag_config_uuid = "e0adcc12-9bad-4588-8a1e-bab0af6ed485"
         self.theme_config_uuid = "baab38a7-cb51-4108-acd8-6edeca222820"
         self.user_config_uuid = "f53f7738-08be-4d5a-b003-13eb4bf03ac7"
+        self.resume_config_uuid = "a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6"
         self.environment_variables = {}
         self.installed_libraries = {}
 
@@ -347,6 +359,35 @@ class VerbaManager:
 
     def create_user_config(self) -> dict:
         return {"getting_started": False}
+    
+    def create_resume_config(self) -> dict:
+        """Creates the Resume Configuration for new features"""
+        return {
+            "skill_extraction": {
+                "enabled": True,
+                "model": os.getenv("SKILL_EXTRACTION_MODEL", "gpt-4"),
+                "use_cache": True,
+                "auto_extract_on_import": False
+            },
+            "resume_generation": {
+                "enabled": True,
+                "model": os.getenv("RESUME_GENERATION_MODEL", "gpt-4"),
+                "default_format": "markdown",
+                "default_sections": ["summary", "experience", "skills", "education"],
+                "default_tone": "professional",
+                "max_length": 2000,
+                "max_work_logs_per_resume": int(os.getenv("MAX_WORK_LOGS_PER_RESUME", "50"))
+            },
+            "resume_tracking": {
+                "enabled": True,
+                "enable_pdf_export": os.getenv("ENABLE_PDF_EXPORT", "false").lower() == "true",
+                "enable_docx_export": os.getenv("ENABLE_DOCX_EXPORT", "false").lower() == "true"
+            },
+            "hybrid_search": {
+                "alpha": 0.5,  # Balance between semantic (0.0) and keyword (1.0) search
+                "limit": 20
+            }
+        }
 
     async def set_theme_config(self, client, config: dict):
         await self.weaviate_manager.set_config(client, self.theme_config_uuid, config)
@@ -356,6 +397,9 @@ class VerbaManager:
 
     async def set_user_config(self, client, config: dict):
         await self.weaviate_manager.set_config(client, self.user_config_uuid, config)
+    
+    async def set_resume_config(self, client, config: dict):
+        await self.weaviate_manager.set_config(client, self.resume_config_uuid, config)
 
     async def load_rag_config(self, client):
         """Check if a Configuration File exists in the database, if yes, check if corrupted. Returns a valid configuration file"""
@@ -393,6 +437,21 @@ class VerbaManager:
         if loaded_config is None:
             return self.create_user_config()
 
+        return loaded_config
+    
+    async def load_resume_config(self, client):
+        """Load resume configuration from database or create new one"""
+        loaded_config = await self.weaviate_manager.get_config(
+            client, self.resume_config_uuid
+        )
+        
+        if loaded_config is None:
+            msg.info("Using New Resume Configuration")
+            new_config = self.create_resume_config()
+            await self.set_resume_config(client, new_config)
+            return new_config
+        
+        msg.info("Using Existing Resume Configuration")
         return loaded_config
 
     def verify_config(self, a: dict, b: dict) -> bool:
@@ -475,6 +534,10 @@ class VerbaManager:
     async def reset_user_config(self, client):
         msg.info("Resetting User Configuration")
         await self.weaviate_manager.reset_config(client, self.user_config_uuid)
+    
+    async def reset_resume_config(self, client):
+        msg.info("Resetting Resume Configuration")
+        await self.weaviate_manager.reset_config(client, self.resume_config_uuid)
 
     # Environment and Libraries
 
