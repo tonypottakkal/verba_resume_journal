@@ -31,7 +31,7 @@ pip install goldenverba
 - [Quickstart: Deploy with Docker](#how-to-install-verba-with-docker)
 - [💾 Verba Walkthrough](#️verba-walkthrough)
 - [💖 Open Source Contribution](#open-source-contribution)
-- [📚 Documentation](#documentation)
+- [📚 Supplemental Documentation](#supplemental-documentation)
 - [🚩 Known Issues](#known-issues)
 - [❔FAQ](#faq)
 
@@ -152,9 +152,9 @@ git clone https://github.com/weaviate/Verba
 docker compose --env-file <your-env-file> up -d --build
 ```
 
-> For detailed Docker deployment instructions, including resume-specific configuration, see [DOCKER_SETUP.md](./DOCKER_SETUP.md).
+> For detailed Docker deployment instructions, including resume-specific configuration, see [DOCKER_SETUP.md](./docs/DOCKER_SETUP.md).
 
-If you're unfamiliar with Python and Virtual Environments, please read the [python tutorial guidelines](./PYTHON_TUTORIAL.md).
+If you're unfamiliar with Python and Virtual Environments, please read the [python tutorial guidelines](./docs/PYTHON_TUTORIAL.md).
 
 # API Keys and Environment Variables
 
@@ -439,21 +439,31 @@ With Data imported, you can use the `Chat` page to ask any related questions. Yo
 
 ## Open Source Contribution
 
-Your contributions are always welcome! Feel free to contribute ideas, feedback, or create issues and bug reports if you find any! Before contributing, please read the [Contribution Guide](./CONTRIBUTING.md). Visit our [Weaviate Community Forum](https://forum.weaviate.io/) if you need any help!
+Your contributions are always welcome! Feel free to contribute ideas, feedback, or create issues and bug reports if you find any! Before contributing, please read the [Contribution Guide](./docs/CONTRIBUTING.md). Visit our [Weaviate Community Forum](https://forum.weaviate.io/) if you need any help!
 
 ### Project Architecture
 
-You can learn more about Verba's architecture and implementation in its [technical documentation](./TECHNICAL.md) and [frontend documentation](./FRONTEND.md). It's recommended to have a look at them before making any contributions.
+You can learn more about Verba's architecture and implementation in its [technical documentation](./docs/TECHNICAL.md) and [frontend documentation](./docs/FRONTEND.md). It's recommended to have a look at them before making any contributions.
 
-## Documentation
+## Supplemental Documentation
 
 ### Comprehensive Guides
 
 To help you understand and work with the Verba codebase, we've created detailed documentation:
 
-- **[Verba Codebase Guide](./VERBA_CODEBASE_GUIDE.md)** - Deep dive into Verba's architecture, component system, and backend implementation. Learn how the RAG pipeline works, understand the VerbaManager orchestration, and explore the modular component system (Readers, Chunkers, Embedders, Retrievers, Generators).
+- **[Verba Codebase Guide](./docs/VERBA_CODEBASE_GUIDE.md)** - Deep dive into Verba's architecture, component system, and backend implementation. Learn how the RAG pipeline works, understand the VerbaManager orchestration, and explore the modular component system (Readers, Chunkers, Embedders, Retrievers, Generators).
 
-- **[Verba UI & Implementation Guide](./VERBA_UI_AND_IMPLEMENTATION_GUIDE.md)** - Complete guide to Verba's frontend architecture, UI components, and implementation patterns. Covers the chat interface, document explorer, retrieval system, and how to extend the UI with custom features.
+- **[Verba UI & Implementation Guide](./docs/VERBA_UI_AND_IMPLEMENTATION_GUIDE.md)** - Complete guide to Verba's frontend architecture, UI components, and implementation patterns. Covers the chat interface, document explorer, retrieval system, and how to extend the UI with custom features.
+
+### Implementation Documentation
+
+Detailed documentation for specific features and implementations:
+
+- **[Docker Configuration Changes](./docs/DOCKER_CONFIG_CHANGES.md)** - Documentation of Docker setup modifications and configuration changes for the resume features.
+
+- **[Work Log API Implementation](./docs/WORKLOG_API_IMPLEMENTATION.md)** - Technical details of the work log management API endpoints and data structures.
+
+- **[Metadata Filtering Implementation](./docs/METADATA_FILTERING_IMPLEMENTATION.md)** - Complete guide to the document metadata and tag filtering system implementation.
 
 ### Resume-Specific Features
 
@@ -524,4 +534,4 @@ For detailed implementation information, refer to the specification documents in
   - You can also set a different endpoint for your embeddings by configuring the `OPENAI_EMBED_API_KEY` and `OPENAI_EMBED_BASE_URL` environment variables and setting `OPENAI_CUSTOM_EMBED=true`. For more details, see [OpenAI Embeddings](#openai-embeddings).
 
 - **How to upload custom JSON files to Verba?**
-  - Right now Verba does not support custom JSON structure. Instead the whole JSON will simply be dumped into the content field of the Verba document. You can read more about the Verba JSON Structure in the Technical Documentation [here](./TECHNICAL.md).
+  - Right now Verba does not support custom JSON structure. Instead the whole JSON will simply be dumped into the content field of the Verba document. You can read more about the Verba JSON Structure in the Technical Documentation [here](./docs/TECHNICAL.md).
