@@ -257,3 +257,41 @@ class GetDocumentPayload(BaseModel):
 class ResetPayload(BaseModel):
     resetMode: str
     credentials: Credentials
+
+
+# Work Log Management Payloads
+
+
+class CreateWorkLogPayload(BaseModel):
+    content: str
+    user_id: str
+    extracted_skills: list[str] | None = None
+    metadata: dict | None = None
+    credentials: Credentials
+
+
+class GetWorkLogsPayload(BaseModel):
+    user_id: str | None = None
+    start_date: str | None = None
+    end_date: str | None = None
+    limit: int = 100
+    offset: int = 0
+    credentials: Credentials
+
+
+class UpdateWorkLogPayload(BaseModel):
+    log_id: str
+    content: str | None = None
+    extracted_skills: list[str] | None = None
+    metadata: dict | None = None
+    credentials: Credentials
+
+
+class DeleteWorkLogPayload(BaseModel):
+    log_id: str
+    credentials: Credentials
+
+
+class GetWorkLogByIdPayload(BaseModel):
+    log_id: str
+    credentials: Credentials

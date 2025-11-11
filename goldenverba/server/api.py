@@ -37,6 +37,11 @@ from goldenverba.server.types import (
     GetVectorPayload,
     DataBatchPayload,
     ChunksPayload,
+    CreateWorkLogPayload,
+    GetWorkLogsPayload,
+    UpdateWorkLogPayload,
+    DeleteWorkLogPayload,
+    GetWorkLogByIdPayload,
 )
 
 load_dotenv()
@@ -792,5 +797,356 @@ async def delete_suggestion(payload: DeleteSuggestionPayload):
         return JSONResponse(
             content={
                 "status": 400,
+            }
+        )
+
+
+### WORK LOG MANAGEMENT ENDPOINTS
+
+
+@app.post("/api/worklogs")
+async def create_worklog(payload: CreateWorkLogPayload):
+    """
+    Create a new work log entry.
+    
+    Args:
+        payload: CreateWorkLogPayload containing work log content and metadata
+        
+    Returns:
+        JSONResponse with created work log entry or error
+    """
+    if production == "Demo":
+        msg.warn("Can't create work logs when in Production Mode")
+        return JSONResponse(
+            status_code=403,
+            content={
+                "error": "Work log creation is disabled in Demo mode",
+                "worklog": None
+            }
+        )
+    
+    try:
+        client = await client_manager.connect(payload.credentials)
+        
+        # Create work log entry using WorkLogManager
+        from goldenverba.components.worklog_manager import WorkLogManager
+        worklog_manager = WorkLogManager()
+        
+        entry = await worklog_manager.create_log_entry(
+            client=client,
+            content=payload.content,
+            user_id=payload.user_id,
+            extracted_skills=payload.extracted_skills,
+            metadata=payload.metadata
+        )
+        
+        msg.good(f"Created work log entry: {entry.id}")
+        
+        return JSONResponse(
+            status_code=201,
+            content={
+                "error": "",
+                "worklog": {
+                    "id": entry.id,
+                    "content": entry.content,
+                    "timestamp": entry.timestamp.isoformat(),
+                    "user_id": entry.user_id,
+                    "extracted_skills": entry.extracted_skills,
+                    "metadata": entry.metadata
+                }
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to create work log entry: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Failed to create work log entry: {str(e)}",
+                "worklog": None
+            }
+        )
+
+
+@app.post("/api/get_worklogs")
+async def get_worklogs(payload: GetWorkLogsPayload):
+    """
+    Retrieve work log entries with optional filtering.
+    
+    Args:
+        payload: GetWorkLogsPayload containing filter criteria and credentials
+        
+    Returns:
+        JSONResponse with list of work log entries or error
+    """
+    try:
+        client = await client_manager.connect(payload.credentials)
+        
+        from goldenverba.components.worklog_manager import WorkLogManager
+        from datetime import datetime
+        
+        worklog_manager = WorkLogManager()
+        
+        # Parse dates if provided
+        start_dt = datetime.fromisoformat(payload.start_date) if payload.start_date else None
+        end_dt = datetime.fromisoformat(payload.end_date) if payload.end_date else None
+        
+        entries = await worklog_manager.get_log_entries(
+            client=client,
+            user_id=payload.user_id,
+            start_date=start_dt,
+            end_date=end_dt,
+            limit=payload.limit,
+            offset=payload.offset
+        )
+        
+        # Get total count
+        total_count = await worklog_manager.count_log_entries(
+            client=client,
+            user_id=payload.user_id
+        )
+        
+        worklogs = [
+            {
+                "id": entry.id,
+                "content": entry.content,
+                "timestamp": entry.timestamp.isoformat(),
+                "user_id": entry.user_id,
+                "extracted_skills": entry.extracted_skills,
+                "metadata": entry.metadata
+            }
+            for entry in entries
+        ]
+        
+        msg.info(f"Retrieved {len(worklogs)} work log entries")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "error": "",
+                "worklogs": worklogs,
+                "total_count": total_count,
+                "limit": payload.limit,
+                "offset": payload.offset
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to retrieve work log entries: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Failed to retrieve work log entries: {str(e)}",
+                "worklogs": [],
+                "total_count": 0
+            }
+        )
+
+
+@app.put("/api/worklogs/{log_id}")
+async def update_worklog(log_id: str, payload: UpdateWorkLogPayload):
+    """
+    Update an existing work log entry.
+    
+    Args:
+        log_id: UUID of the work log entry to update
+        payload: UpdateWorkLogPayload containing updated fields
+        
+    Returns:
+        JSONResponse with updated work log entry or error
+    """
+    if production == "Demo":
+        msg.warn("Can't update work logs when in Production Mode")
+        return JSONResponse(
+            status_code=403,
+            content={
+                "error": "Work log updates are disabled in Demo mode",
+                "worklog": None
+            }
+        )
+    
+    try:
+        client = await client_manager.connect(payload.credentials)
+        
+        from goldenverba.components.worklog_manager import WorkLogManager
+        worklog_manager = WorkLogManager()
+        
+        # Verify log_id matches payload
+        if payload.log_id != log_id:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": "Log ID in URL does not match payload",
+                    "worklog": None
+                }
+            )
+        
+        entry = await worklog_manager.update_log_entry(
+            client=client,
+            log_id=log_id,
+            content=payload.content,
+            extracted_skills=payload.extracted_skills,
+            metadata=payload.metadata
+        )
+        
+        msg.good(f"Updated work log entry: {entry.id}")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "error": "",
+                "worklog": {
+                    "id": entry.id,
+                    "content": entry.content,
+                    "timestamp": entry.timestamp.isoformat(),
+                    "user_id": entry.user_id,
+                    "extracted_skills": entry.extracted_skills,
+                    "metadata": entry.metadata
+                }
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to update work log entry: {str(e)}")
+        status_code = 404 if "not found" in str(e).lower() else 500
+        return JSONResponse(
+            status_code=status_code,
+            content={
+                "error": f"Failed to update work log entry: {str(e)}",
+                "worklog": None
+            }
+        )
+
+
+@app.delete("/api/worklogs/{log_id}")
+async def delete_worklog(log_id: str, payload: DeleteWorkLogPayload):
+    """
+    Delete a work log entry.
+    
+    Args:
+        log_id: UUID of the work log entry to delete
+        payload: DeleteWorkLogPayload containing credentials
+        
+    Returns:
+        JSONResponse with success status or error
+    """
+    if production == "Demo":
+        msg.warn("Can't delete work logs when in Production Mode")
+        return JSONResponse(
+            status_code=403,
+            content={
+                "error": "Work log deletion is disabled in Demo mode",
+                "deleted": False
+            }
+        )
+    
+    try:
+        client = await client_manager.connect(payload.credentials)
+        
+        from goldenverba.components.worklog_manager import WorkLogManager
+        worklog_manager = WorkLogManager()
+        
+        # Verify log_id matches payload
+        if payload.log_id != log_id:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": "Log ID in URL does not match payload",
+                    "deleted": False
+                }
+            )
+        
+        success = await worklog_manager.delete_log_entry(
+            client=client,
+            log_id=log_id
+        )
+        
+        msg.good(f"Deleted work log entry: {log_id}")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "error": "",
+                "deleted": success,
+                "log_id": log_id
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to delete work log entry: {str(e)}")
+        status_code = 404 if "not found" in str(e).lower() else 500
+        return JSONResponse(
+            status_code=status_code,
+            content={
+                "error": f"Failed to delete work log entry: {str(e)}",
+                "deleted": False
+            }
+        )
+
+
+@app.post("/api/worklogs/{log_id}")
+async def get_worklog_by_id(log_id: str, payload: GetWorkLogByIdPayload):
+    """
+    Retrieve a specific work log entry by ID.
+    
+    Args:
+        log_id: UUID of the work log entry
+        payload: GetWorkLogByIdPayload containing credentials
+        
+    Returns:
+        JSONResponse with work log entry or error
+    """
+    try:
+        client = await client_manager.connect(payload.credentials)
+        
+        from goldenverba.components.worklog_manager import WorkLogManager
+        worklog_manager = WorkLogManager()
+        
+        # Verify log_id matches payload
+        if payload.log_id != log_id:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": "Log ID in URL does not match payload",
+                    "worklog": None
+                }
+            )
+        
+        entry = await worklog_manager.get_log_entry_by_id(
+            client=client,
+            log_id=log_id
+        )
+        
+        if entry is None:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "error": f"Work log entry not found: {log_id}",
+                    "worklog": None
+                }
+            )
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "error": "",
+                "worklog": {
+                    "id": entry.id,
+                    "content": entry.content,
+                    "timestamp": entry.timestamp.isoformat(),
+                    "user_id": entry.user_id,
+                    "extracted_skills": entry.extracted_skills,
+                    "metadata": entry.metadata
+                }
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to retrieve work log entry: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Failed to retrieve work log entry: {str(e)}",
+                "worklog": None
             }
         )
