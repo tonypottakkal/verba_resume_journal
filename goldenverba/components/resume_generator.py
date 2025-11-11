@@ -15,6 +15,8 @@ import uuid
 import json
 from dataclasses import dataclass
 
+from goldenverba.components.conversation_manager import ConversationManager
+
 
 @dataclass
 class JobRequirements:
@@ -91,7 +93,8 @@ class ResumeGenerator:
         self,
         worklog_collection: str = "VERBA_WorkLog",
         document_collection: str = "VERBA_Document",
-        chunk_collection: str = "VERBA_Chunk"
+        chunk_collection: str = "VERBA_Chunk",
+        max_exchanges: int = 10
     ):
         """
         Initialize ResumeGenerator.
@@ -100,11 +103,13 @@ class ResumeGenerator:
             worklog_collection: Name of the work log collection
             document_collection: Name of the document collection
             chunk_collection: Name of the chunk collection
+            max_exchanges: Maximum number of conversation exchanges to keep (default: 10)
         """
         self.worklog_collection = worklog_collection
         self.document_collection = document_collection
         self.chunk_collection = chunk_collection
-        self.conversation_contexts = {}  # Store conversation contexts by session_id
+        self.conversation_manager = ConversationManager(max_exchanges=max_exchanges)
+        msg.good(f"ResumeGenerator initialized with ConversationManager (max_exchanges={max_exchanges})")
     
     async def extract_job_requirements(
         self,
@@ -403,8 +408,24 @@ JSON Response:"""
             Exception: If generation fails
         """
         try:
-            # Get or create conversation context
-            conversation = self._get_conversation_context(session_id) if session_id else []
+            # Get or create conversation context using ConversationManager
+            conversation = []
+            if session_id:
+                # Create session if it doesn't exist
+                if not self.conversation_manager.session_exists(session_id):
+                    self.conversation_manager.create_session(
+                        session_id=session_id,
+                        metadata={
+                            "job_description": job_description,
+                            "target_role": requirements.role_description
+                        }
+                    )
+                
+                # Get conversation history in OpenAI format
+                conversation = self.conversation_manager.get_conversation_history(
+                    session_id,
+                    format="openai"
+                )
             
             # Build context from experiences
             context = self._build_resume_context(experiences, requirements)
@@ -439,10 +460,15 @@ JSON Response:"""
             
             # Update conversation context if session provided
             if session_id:
-                self._update_conversation_context(
+                self.conversation_manager.append_user_message(
                     session_id,
                     prompt,
-                    full_response
+                    metadata={"type": "refinement" if user_feedback else "initial"}
+                )
+                self.conversation_manager.append_assistant_message(
+                    session_id,
+                    full_response,
+                    metadata={"resume_length": len(full_response)}
                 )
             
             # Create Resume object
@@ -453,6 +479,7 @@ JSON Response:"""
                     "job_description": job_description,
                     "requirements": requirements.to_dict(),
                     "experience_count": len(experiences),
+                    "session_id": session_id,
                     "options": {
                         "sections": options.sections,
                         "tone": options.tone,
@@ -545,43 +572,75 @@ INSTRUCTIONS:
 
 Generate the refined resume now:"""
     
-    def _get_conversation_context(self, session_id: str) -> List[Dict[str, str]]:
-        """Get conversation context for a session."""
-        if session_id not in self.conversation_contexts:
-            self.conversation_contexts[session_id] = []
-        return self.conversation_contexts[session_id]
+    def create_conversation_session(
+        self,
+        session_id: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> str:
+        """
+        Create a new conversation session for resume generation.
+        
+        Args:
+            session_id: Optional custom session ID
+            metadata: Optional metadata for the session
+            
+        Returns:
+            str: The session ID
+        """
+        return self.conversation_manager.create_session(session_id, metadata)
     
-    def _update_conversation_context(
+    def get_conversation_history(
         self,
         session_id: str,
-        user_message: str,
-        assistant_message: str
-    ):
-        """Update conversation context with new messages."""
-        if session_id not in self.conversation_contexts:
-            self.conversation_contexts[session_id] = []
+        format: str = "openai"
+    ) -> Any:
+        """
+        Get conversation history for a session.
         
-        # Add user message
-        self.conversation_contexts[session_id].append({
-            "type": "user",
-            "content": user_message
-        })
-        
-        # Add assistant message
-        self.conversation_contexts[session_id].append({
-            "type": "assistant",
-            "content": assistant_message
-        })
-        
-        # Keep only last 10 exchanges (20 messages)
-        if len(self.conversation_contexts[session_id]) > 20:
-            self.conversation_contexts[session_id] = self.conversation_contexts[session_id][-20:]
+        Args:
+            session_id: The session ID
+            format: Output format ("list", "dict", or "openai")
+            
+        Returns:
+            Conversation history in requested format
+        """
+        return self.conversation_manager.get_conversation_history(session_id, format)
     
-    def reset_conversation_context(self, session_id: str):
-        """Clear conversation context for a session."""
-        if session_id in self.conversation_contexts:
-            del self.conversation_contexts[session_id]
-            msg.info(f"Reset conversation context for session: {session_id}")
+    def reset_conversation_context(self, session_id: str) -> bool:
+        """
+        Clear conversation context for a session.
+        
+        Args:
+            session_id: The session ID to reset
+            
+        Returns:
+            bool: True if successful, False if session not found
+        """
+        return self.conversation_manager.reset_session(session_id)
+    
+    def delete_conversation_session(self, session_id: str) -> bool:
+        """
+        Delete a conversation session entirely.
+        
+        Args:
+            session_id: The session ID to delete
+            
+        Returns:
+            bool: True if successful, False if session not found
+        """
+        return self.conversation_manager.delete_session(session_id)
+    
+    def get_session_info(self, session_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get information about a conversation session.
+        
+        Args:
+            session_id: The session ID
+            
+        Returns:
+            Dict with session info or None if not found
+        """
+        return self.conversation_manager.get_session_info(session_id)
     
     def format_resume(
         self,

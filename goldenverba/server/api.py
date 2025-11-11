@@ -1388,11 +1388,11 @@ async def generate_resume(payload: GenerateResumePayload):
     try:
         client = await client_manager.connect(payload.credentials)
         
-        from goldenverba.components.resume_generator import ResumeGenerator, ResumeOptions
-        from goldenverba.components.resume_tracker import ResumeTracker
+        from goldenverba.components.resume_generator import ResumeOptions
         
-        resume_generator = ResumeGenerator()
-        resume_tracker = ResumeTracker()
+        # Use manager's instances
+        resume_generator = manager.resume_generator
+        resume_tracker = manager.resume_tracker
         
         # Get RAG config for generator and embedder settings
         rag_config = await manager.load_rag_config(client)
@@ -1436,7 +1436,9 @@ async def generate_resume(payload: GenerateResumePayload):
             requirements=requirements,
             generator=generator,
             generator_config=generator_config,
-            options=options
+            options=options,
+            session_id=payload.session_id,
+            user_feedback=payload.user_feedback
         )
         
         # Extract source log IDs from experiences
@@ -1985,5 +1987,228 @@ async def export_resume(resume_id: str, payload: ExportResumePayload):
             status_code=500,
             content={
                 "error": f"Failed to export resume: {str(e)}"
+            }
+        )
+
+
+# Conversation Session Management Endpoints
+
+@app.post("/api/conversations/sessions")
+async def create_conversation_session(payload: CreateConversationSessionPayload):
+    """
+    Create a new conversation session for resume generation.
+    
+    Args:
+        payload: CreateConversationSessionPayload with optional session_id and metadata
+        
+    Returns:
+        JSONResponse with session_id or error
+    """
+    try:
+        # No need to connect to Weaviate for session creation
+        # Sessions are managed in-memory by the ResumeGenerator
+        
+        # Use the manager's resume_generator instance
+        session_id = manager.resume_generator.create_conversation_session(
+            session_id=payload.session_id,
+            metadata=payload.metadata
+        )
+        
+        msg.good(f"Created conversation session: {session_id}")
+        
+        return JSONResponse(
+            status_code=201,
+            content={
+                "error": "",
+                "session_id": session_id,
+                "metadata": payload.metadata or {}
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to create conversation session: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Failed to create conversation session: {str(e)}",
+                "session_id": None
+            }
+        )
+
+
+@app.post("/api/conversations/sessions/{session_id}/history")
+async def get_conversation_history(session_id: str, payload: GetConversationHistoryPayload):
+    """
+    Get conversation history for a session.
+    
+    Args:
+        session_id: The session ID
+        payload: GetConversationHistoryPayload with format preference
+        
+    Returns:
+        JSONResponse with conversation history or error
+    """
+    try:
+        # Verify session_id matches payload
+        if payload.session_id != session_id:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": "Session ID in URL does not match payload",
+                    "history": []
+                }
+            )
+        
+        # Get session info
+        session_info = manager.resume_generator.get_session_info(session_id)
+        
+        if session_info is None:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "error": f"Session not found: {session_id}",
+                    "history": []
+                }
+            )
+        
+        # Get conversation history
+        history = manager.resume_generator.get_conversation_history(
+            session_id=session_id,
+            format=payload.format
+        )
+        
+        msg.info(f"Retrieved conversation history for session {session_id}")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "error": "",
+                "session_id": session_id,
+                "history": history,
+                "session_info": session_info
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to get conversation history: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Failed to get conversation history: {str(e)}",
+                "history": []
+            }
+        )
+
+
+@app.post("/api/conversations/sessions/{session_id}/reset")
+async def reset_conversation_session(session_id: str, payload: ResetConversationSessionPayload):
+    """
+    Reset (clear) a conversation session.
+    
+    Args:
+        session_id: The session ID to reset
+        payload: ResetConversationSessionPayload with credentials
+        
+    Returns:
+        JSONResponse with success status or error
+    """
+    try:
+        # Verify session_id matches payload
+        if payload.session_id != session_id:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": "Session ID in URL does not match payload",
+                    "success": False
+                }
+            )
+        
+        # Reset the session
+        success = manager.resume_generator.reset_conversation_context(session_id)
+        
+        if not success:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "error": f"Session not found: {session_id}",
+                    "success": False
+                }
+            )
+        
+        msg.good(f"Reset conversation session: {session_id}")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "error": "",
+                "session_id": session_id,
+                "success": True
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to reset conversation session: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Failed to reset conversation session: {str(e)}",
+                "success": False
+            }
+        )
+
+
+@app.delete("/api/conversations/sessions/{session_id}")
+async def delete_conversation_session(session_id: str, payload: DeleteConversationSessionPayload):
+    """
+    Delete a conversation session.
+    
+    Args:
+        session_id: The session ID to delete
+        payload: DeleteConversationSessionPayload with credentials
+        
+    Returns:
+        JSONResponse with success status or error
+    """
+    try:
+        # Verify session_id matches payload
+        if payload.session_id != session_id:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": "Session ID in URL does not match payload",
+                    "success": False
+                }
+            )
+        
+        # Delete the session
+        success = manager.resume_generator.delete_conversation_session(session_id)
+        
+        if not success:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "error": f"Session not found: {session_id}",
+                    "success": False
+                }
+            )
+        
+        msg.good(f"Deleted conversation session: {session_id}")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "error": "",
+                "session_id": session_id,
+                "success": True
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to delete conversation session: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Failed to delete conversation session: {str(e)}",
+                "success": False
             }
         )

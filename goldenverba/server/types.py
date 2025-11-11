@@ -328,6 +328,8 @@ class GenerateResumePayload(BaseModel):
     max_length: int = 2000
     tone: str = "professional"
     user_id: str | None = None
+    session_id: str | None = None
+    user_feedback: str | None = None
 
 
 class GetResumesPayload(BaseModel):
@@ -360,3 +362,25 @@ class ExportResumePayload(BaseModel):
     credentials: Credentials
     resume_id: str
     format: Literal["pdf", "docx", "markdown"]
+
+
+class CreateConversationSessionPayload(BaseModel):
+    credentials: Credentials
+    session_id: str | None = None
+    metadata: dict[str, Any] | None = None
+
+
+class GetConversationHistoryPayload(BaseModel):
+    credentials: Credentials
+    session_id: str
+    format: Literal["list", "dict", "openai"] = "openai"
+
+
+class ResetConversationSessionPayload(BaseModel):
+    credentials: Credentials
+    session_id: str
+
+
+class DeleteConversationSessionPayload(BaseModel):
+    credentials: Credentials
+    session_id: str
