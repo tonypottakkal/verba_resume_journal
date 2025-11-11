@@ -17,9 +17,19 @@ services:
       - UNSTRUCTURED_API_KEY=$UNSTRUCTURED_API_KEY
       - UNSTRUCTURED_API_URL=$UNSTRUCTURED_API_URL
       - GITHUB_TOKEN=$GITHUB_TOKEN
+      # Resume-specific environment variables
+      - SKILL_EXTRACTION_MODEL=${SKILL_EXTRACTION_MODEL:-gpt-4o-mini}
+      - SKILL_EXTRACTION_PROVIDER=${SKILL_EXTRACTION_PROVIDER:-OpenAI}
+      - RESUME_GENERATION_MODEL=${RESUME_GENERATION_MODEL:-gpt-4o}
+      - RESUME_GENERATION_PROVIDER=${RESUME_GENERATION_PROVIDER:-OpenAI}
+      - ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY
+      - VOYAGE_API_KEY=$VOYAGE_API_KEY
+      - UPSTAGE_API_KEY=$UPSTAGE_API_KEY
+      - NOVITA_API_KEY=$NOVITA_API_KEY
 
     volumes:
       - ./data:/data/
+      - resume_exports:/Verba/exports
     depends_on:
       weaviate:
         condition: service_healthy
@@ -85,6 +95,7 @@ services:
 
 volumes:
   weaviate_data: {}
+  resume_exports: {}
 
 
 networks:

@@ -151,6 +151,8 @@ git clone https://github.com/weaviate/Verba
 docker compose --env-file <your-env-file> up -d --build
 ```
 
+> For detailed Docker deployment instructions, including resume-specific configuration, see [DOCKER_SETUP.md](./DOCKER_SETUP.md).
+
 If you're unfamiliar with Python and Virtual Environments, please read the [python tutorial guidelines](./PYTHON_TUTORIAL.md).
 
 # API Keys and Environment Variables
@@ -192,6 +194,13 @@ Below is a comprehensive list of the API keys and variables you may require:
 | SYSYEM_MESSAGE_PROMPT     | Prompt text value                            | Default value starts with: "You are Verba, a chatbot for..."                                                                                               |
 | OLLAMA_MODEL           | Your Ollama Model                                          | Set the default Ollama model to use                                                                                           |
 | OLLAMA_EMBED_MODEL     | Your Ollama Embedding Model                                | Set the default Ollama embedding model to use                                                                                 |
+| **Resume-Specific Variables** | | |
+| SKILL_EXTRACTION_MODEL | Model name (e.g., gpt-4o-mini)                             | Model to use for extracting skills from work logs                                                                             |
+| SKILL_EXTRACTION_PROVIDER | OpenAI, Cohere, Ollama, Anthropic                       | Provider for skill extraction                                                                                                 |
+| RESUME_GENERATION_MODEL | Model name (e.g., gpt-4o)                                 | Model to use for generating tailored resumes                                                                                  |
+| RESUME_GENERATION_PROVIDER | OpenAI, Cohere, Ollama, Anthropic                      | Provider for resume generation                                                                                                |
+| DEFAULT_RESUME_FORMAT  | pdf, docx, markdown                                        | Default format for resume exports                                                                                             |
+| MAX_CONVERSATION_HISTORY | Number (default: 10)                                     | Maximum conversation exchanges for iterative resume refinement                                                                |
 
 ![API Keys in Verba](https://github.com/weaviate/Verba/blob/2.0.0/img/api_screen.png)
 
