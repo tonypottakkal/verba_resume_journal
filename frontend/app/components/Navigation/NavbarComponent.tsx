@@ -8,6 +8,10 @@ import { IoMdAddCircle } from "react-icons/io";
 import { IoSettingsSharp } from "react-icons/io5";
 import { FaGithub } from "react-icons/fa";
 import { TiThMenu } from "react-icons/ti";
+import { MdWorkHistory } from "react-icons/md";
+import { FaChartBar } from "react-icons/fa";
+import { IoDocumentText } from "react-icons/io5";
+import { FaHistory } from "react-icons/fa";
 
 import { closeOnClick } from "@/app/util";
 
@@ -24,7 +28,7 @@ interface NavbarProps {
   currentPage: string;
   production: "Local" | "Demo" | "Production";
   setCurrentPage: (
-    page: "CHAT" | "DOCUMENTS" | "STATUS" | "ADD" | "SETTINGS" | "RAG"
+    page: "CHAT" | "DOCUMENTS" | "STATUS" | "ADD" | "SETTINGS" | "RAG" | "WORKLOGS" | "SKILLS" | "RESUME" | "HISTORY"
   ) => void;
 }
 
@@ -142,6 +146,50 @@ const Navbar: React.FC<NavbarProps> = ({
                   </a>
                 </li>
               )}
+              <li key={"Menu Button6"}>
+                <a
+                  className={currentPage === "WORKLOGS" ? "font-bold" : ""}
+                  onClick={() => {
+                    setCurrentPage("WORKLOGS");
+                    closeOnClick();
+                  }}
+                >
+                  Work Log
+                </a>
+              </li>
+              <li key={"Menu Button7"}>
+                <a
+                  className={currentPage === "SKILLS" ? "font-bold" : ""}
+                  onClick={() => {
+                    setCurrentPage("SKILLS");
+                    closeOnClick();
+                  }}
+                >
+                  Skills
+                </a>
+              </li>
+              <li key={"Menu Button8"}>
+                <a
+                  className={currentPage === "RESUME" ? "font-bold" : ""}
+                  onClick={() => {
+                    setCurrentPage("RESUME");
+                    closeOnClick();
+                  }}
+                >
+                  Resume
+                </a>
+              </li>
+              <li key={"Menu Button9"}>
+                <a
+                  className={currentPage === "HISTORY" ? "font-bold" : ""}
+                  onClick={() => {
+                    setCurrentPage("HISTORY");
+                    closeOnClick();
+                  }}
+                >
+                  History
+                </a>
+              </li>
             </ul>
           </div>
         </div>
@@ -186,6 +234,41 @@ const Navbar: React.FC<NavbarProps> = ({
               setPage="SETTINGS"
             />
           )}
+          <div
+            className={`sm:h-[3vh] lg:h-[5vh] mx-1 hidden md:block bg-text-alt-verba w-px`}
+          ></div>
+          <NavbarButton
+            hide={false}
+            Icon={MdWorkHistory}
+            title="Work Log"
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            setPage="WORKLOGS"
+          />
+          <NavbarButton
+            hide={false}
+            Icon={FaChartBar}
+            title="Skills"
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            setPage="SKILLS"
+          />
+          <NavbarButton
+            hide={false}
+            Icon={IoDocumentText}
+            title="Resume"
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            setPage="RESUME"
+          />
+          <NavbarButton
+            hide={false}
+            Icon={FaHistory}
+            title="History"
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            setPage="HISTORY"
+          />
           <div
             className={`sm:h-[3vh] lg:h-[5vh] mx-1 hidden md:block bg-text-alt-verba w-px`}
           ></div>

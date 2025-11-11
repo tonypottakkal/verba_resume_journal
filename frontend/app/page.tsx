@@ -12,6 +12,10 @@ import ChatView from "./components/Chat/ChatView";
 import SettingsView from "./components/Settings/SettingsView";
 import GettingStartedComponent from "./components/Login/GettingStarted";
 import StatusMessengerComponent from "./components/Navigation/StatusMessenger";
+import WorkLogChat from "./components/WorkLog/WorkLogChat";
+import SkillsAnalysis from "./components/SkillsAnalysis/SkillsAnalysis";
+import ResumeGenerator from "./components/ResumeGenerator/ResumeGenerator";
+import ResumeHistory from "./components/ResumeHistory/ResumeHistory";
 
 // Types
 import {
@@ -272,6 +276,58 @@ export default function Home() {
                 setSelectedTheme={setSelectedTheme}
                 themes={themes}
                 setThemes={setThemes}
+              />
+            </div>
+
+            <div className={`${currentPage === "WORKLOGS" ? "" : "hidden"}`}>
+              <div className="mb-6">
+                <h1 className="text-3xl font-bold text-text-verba mb-2">Work Log</h1>
+                <p className="text-text-alt-verba">
+                  Track your daily work activities and automatically extract skills
+                </p>
+              </div>
+              <WorkLogChat 
+                credentials={credentials}
+                addStatusMessage={addStatusMessage}
+              />
+            </div>
+
+            <div className={`${currentPage === "SKILLS" ? "" : "hidden"}`}>
+              <div className="mb-6">
+                <h1 className="text-3xl font-bold text-text-verba mb-2">Skills Analysis</h1>
+                <p className="text-text-alt-verba">
+                  View and analyze your skills extracted from work logs and documents
+                </p>
+              </div>
+              <SkillsAnalysis 
+                credentials={credentials}
+                addStatusMessage={addStatusMessage}
+              />
+            </div>
+
+            <div className={`${currentPage === "RESUME" ? "" : "hidden"}`}>
+              <div className="mb-6">
+                <h1 className="text-3xl font-bold text-text-verba mb-2">Resume Generator</h1>
+                <p className="text-text-alt-verba">
+                  Generate tailored resumes based on job descriptions and your work history
+                </p>
+              </div>
+              <ResumeGenerator 
+                credentials={credentials}
+                addStatusMessage={addStatusMessage}
+              />
+            </div>
+
+            <div className={`${currentPage === "HISTORY" ? "" : "hidden"}`}>
+              <div className="mb-6">
+                <h1 className="text-3xl font-bold text-text-verba mb-2">Resume History</h1>
+                <p className="text-text-alt-verba">
+                  View and manage your previously generated resumes
+                </p>
+              </div>
+              <ResumeHistory 
+                credentials={credentials}
+                addStatusMessage={addStatusMessage}
               />
             </div>
           </div>
