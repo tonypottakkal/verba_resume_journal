@@ -907,6 +907,171 @@ class WeaviateManager:
         if await self.verify_collection(client, self.suggestion_collection_name):
             await client.collections.delete(self.suggestion_collection_name)
 
+    ### Document Tag Management
+
+    async def update_document_tags(
+        self, client: WeaviateAsyncClient, document_id: str, tags: list[str]
+    ) -> bool:
+        """
+        Update tags for a specific document.
+        
+        Args:
+            client: Weaviate async client
+            document_id: UUID of the document
+            tags: List of tags to set for the document
+            
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        if await self.verify_collection(client, self.document_collection_name):
+            document_collection = client.collections.get(self.document_collection_name)
+            
+            if not await document_collection.data.exists(document_id):
+                raise Exception(f"Document {document_id} not found")
+            
+            try:
+                await document_collection.data.update(
+                    uuid=document_id,
+                    properties={"tags": tags}
+                )
+                msg.good(f"Updated tags for document {document_id}")
+                return True
+            except Exception as e:
+                msg.fail(f"Failed to update tags: {str(e)}")
+                raise Exception(f"Failed to update tags: {str(e)}")
+        return False
+
+    async def get_document_tags(
+        self, client: WeaviateAsyncClient, document_id: str
+    ) -> list[str]:
+        """
+        Get tags for a specific document.
+        
+        Args:
+            client: Weaviate async client
+            document_id: UUID of the document
+            
+        Returns:
+            list[str]: List of tags for the document
+        """
+        if await self.verify_collection(client, self.document_collection_name):
+            document_collection = client.collections.get(self.document_collection_name)
+            
+            if not await document_collection.data.exists(document_id):
+                raise Exception(f"Document {document_id} not found")
+            
+            try:
+                document = await document_collection.query.fetch_object_by_id(
+                    document_id, return_properties=["tags"]
+                )
+                return document.properties.get("tags", [])
+            except Exception as e:
+                msg.fail(f"Failed to get tags: {str(e)}")
+                return []
+        return []
+
+    async def get_all_tags(self, client: WeaviateAsyncClient) -> list[str]:
+        """
+        Get all unique tags across all documents.
+        
+        Args:
+            client: Weaviate async client
+            
+        Returns:
+            list[str]: List of all unique tags
+        """
+        if await self.verify_collection(client, self.document_collection_name):
+            document_collection = client.collections.get(self.document_collection_name)
+            
+            try:
+                # Aggregate to get all unique tags
+                aggregation = await document_collection.aggregate.over_all(
+                    group_by=GroupByAggregate(prop="tags"), total_count=True
+                )
+                
+                tags = []
+                if aggregation.groups:
+                    for group in aggregation.groups:
+                        if group.grouped_by and group.grouped_by.value:
+                            tags.append(group.grouped_by.value)
+                
+                return sorted(tags)
+            except Exception as e:
+                msg.warn(f"Failed to get all tags: {str(e)}")
+                return []
+        return []
+
+    async def search_documents_by_tags(
+        self,
+        client: WeaviateAsyncClient,
+        tags: list[str],
+        match_all: bool = False,
+        page: int = 1,
+        pageSize: int = 10,
+        properties: list[str] = None,
+    ) -> tuple[list[dict], int]:
+        """
+        Search documents by tags.
+        
+        Args:
+            client: Weaviate async client
+            tags: List of tags to search for
+            match_all: If True, document must have all tags; if False, any tag
+            page: Page number for pagination
+            pageSize: Number of results per page
+            properties: List of properties to return
+            
+        Returns:
+            tuple: (list of documents, total count)
+        """
+        if await self.verify_collection(client, self.document_collection_name):
+            document_collection = client.collections.get(self.document_collection_name)
+            
+            if not tags:
+                return [], 0
+            
+            try:
+                offset = pageSize * (page - 1)
+                
+                # Build filter based on match_all parameter
+                if match_all:
+                    # Document must contain all tags
+                    filters = Filter.by_property("tags").contains_all(tags)
+                else:
+                    # Document must contain any of the tags
+                    filters = Filter.by_property("tags").contains_any(tags)
+                
+                # Get documents with filters
+                response = await document_collection.query.fetch_objects(
+                    filters=filters,
+                    limit=pageSize,
+                    offset=offset,
+                    return_properties=properties or ["title", "extension", "fileSize", "labels", "source", "meta", "tags"],
+                )
+                
+                # Get total count
+                count_response = await document_collection.aggregate.over_all(
+                    filters=filters,
+                    total_count=True
+                )
+                
+                documents = []
+                for obj in response.objects:
+                    doc_dict = {
+                        "uuid": str(obj.uuid),
+                        **obj.properties
+                    }
+                    documents.append(doc_dict)
+                
+                total_count = count_response.total_count if count_response else 0
+                
+                return documents, total_count
+                
+            except Exception as e:
+                msg.fail(f"Failed to search documents by tags: {str(e)}")
+                return [], 0
+        return [], 0
+
     ### Cache Logic
 
     # TODO: Implement Cache Logic

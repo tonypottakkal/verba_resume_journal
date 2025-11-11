@@ -716,3 +716,151 @@ export const loadResumeConfigFromBackend = async (
     return null;
   }
 };
+
+// Document Tag Management Endpoints
+
+/**
+ * Update tags for a specific document
+ */
+export const updateDocumentTags = async (
+  documentId: string,
+  tags: string[],
+  credentials: Credentials
+): Promise<{ success: boolean; error: string }> => {
+  try {
+    const host = await detectHost();
+    const response = await fetch(`${host}/api/documents/${documentId}/tags`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        document_id: documentId,
+        tags: tags,
+        credentials: credentials,
+      }),
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      return { success: false, error: data.error || "Failed to update tags" };
+    }
+
+    return { success: data.success, error: data.error || "" };
+  } catch (error) {
+    console.error("Failed to update document tags:", error);
+    return { success: false, error: String(error) };
+  }
+};
+
+/**
+ * Get tags for a specific document
+ */
+export const getDocumentTags = async (
+  documentId: string,
+  credentials: Credentials
+): Promise<string[]> => {
+  try {
+    const host = await detectHost();
+    const response = await fetch(`${host}/api/documents/${documentId}/tags/get`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        document_id: documentId,
+        credentials: credentials,
+      }),
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      console.error("Failed to get document tags:", data.error);
+      return [];
+    }
+
+    return data.tags || [];
+  } catch (error) {
+    console.error("Failed to get document tags:", error);
+    return [];
+  }
+};
+
+/**
+ * Get all unique tags across all documents
+ */
+export const getAllTags = async (
+  credentials: Credentials
+): Promise<string[]> => {
+  try {
+    const host = await detectHost();
+    const response = await fetch(`${host}/api/tags`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        credentials: credentials,
+      }),
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      console.error("Failed to get all tags:", data.error);
+      return [];
+    }
+
+    return data.tags || [];
+  } catch (error) {
+    console.error("Failed to get all tags:", error);
+    return [];
+  }
+};
+
+/**
+ * Search documents by tags
+ */
+export const searchDocumentsByTags = async (
+  tags: string[],
+  matchAll: boolean,
+  page: number,
+  pageSize: number,
+  credentials: Credentials
+): Promise<DocumentsPreviewPayload | null> => {
+  try {
+    const host = await detectHost();
+    const response = await fetch(`${host}/api/documents/search_by_tags`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tags: tags,
+        match_all: matchAll,
+        page: page,
+        pageSize: pageSize,
+        credentials: credentials,
+      }),
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      console.error("Failed to search documents by tags:", data.error);
+      return null;
+    }
+
+    return {
+      error: data.error || "",
+      documents: data.documents || [],
+      labels: [], // Tags search doesn't return labels
+      totalDocuments: data.total_count || 0,
+    };
+  } catch (error) {
+    console.error("Failed to search documents by tags:", error);
+    return null;
+  }
+};

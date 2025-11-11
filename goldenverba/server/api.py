@@ -51,6 +51,10 @@ from goldenverba.server.types import (
     RegenerateResumePayload,
     DeleteResumePayload,
     ExportResumePayload,
+    UpdateDocumentTagsPayload,
+    GetDocumentTagsPayload,
+    GetAllTagsPayload,
+    SearchDocumentsByTagsPayload,
 )
 
 load_dotenv()
@@ -702,6 +706,216 @@ async def delete_document(payload: GetDocumentPayload):
     except Exception as e:
         msg.fail(f"Deleting Document with ID {payload.uuid} failed: {str(e)}")
         return JSONResponse(status_code=400, content={})
+
+
+### DOCUMENT TAG MANAGEMENT ENDPOINTS
+
+
+@app.post("/api/documents/{document_id}/tags")
+async def update_document_tags(document_id: str, payload: UpdateDocumentTagsPayload):
+    """
+    Update tags for a specific document.
+    
+    Args:
+        document_id: UUID of the document
+        payload: UpdateDocumentTagsPayload containing tags and credentials
+        
+    Returns:
+        JSONResponse with success status or error
+    """
+    if production == "Demo":
+        msg.warn("Can't update document tags when in Production Mode")
+        return JSONResponse(
+            status_code=403,
+            content={
+                "error": "Document tag updates are disabled in Demo mode",
+                "success": False
+            }
+        )
+    
+    try:
+        client = await client_manager.connect(payload.credentials)
+        
+        # Verify document_id matches payload
+        if payload.document_id != document_id:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": "Document ID in URL does not match payload",
+                    "success": False
+                }
+            )
+        
+        success = await manager.weaviate_manager.update_document_tags(
+            client=client,
+            document_id=document_id,
+            tags=payload.tags
+        )
+        
+        msg.good(f"Updated tags for document: {document_id}")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "error": "",
+                "success": success,
+                "document_id": document_id,
+                "tags": payload.tags
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to update document tags: {str(e)}")
+        status_code = 404 if "not found" in str(e).lower() else 500
+        return JSONResponse(
+            status_code=status_code,
+            content={
+                "error": f"Failed to update document tags: {str(e)}",
+                "success": False
+            }
+        )
+
+
+@app.post("/api/documents/{document_id}/tags/get")
+async def get_document_tags(document_id: str, payload: GetDocumentTagsPayload):
+    """
+    Get tags for a specific document.
+    
+    Args:
+        document_id: UUID of the document
+        payload: GetDocumentTagsPayload containing credentials
+        
+    Returns:
+        JSONResponse with document tags or error
+    """
+    try:
+        client = await client_manager.connect(payload.credentials)
+        
+        # Verify document_id matches payload
+        if payload.document_id != document_id:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": "Document ID in URL does not match payload",
+                    "tags": []
+                }
+            )
+        
+        tags = await manager.weaviate_manager.get_document_tags(
+            client=client,
+            document_id=document_id
+        )
+        
+        msg.info(f"Retrieved tags for document: {document_id}")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "error": "",
+                "document_id": document_id,
+                "tags": tags
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to get document tags: {str(e)}")
+        status_code = 404 if "not found" in str(e).lower() else 500
+        return JSONResponse(
+            status_code=status_code,
+            content={
+                "error": f"Failed to get document tags: {str(e)}",
+                "tags": []
+            }
+        )
+
+
+@app.post("/api/tags")
+async def get_all_tags(payload: GetAllTagsPayload):
+    """
+    Get all unique tags across all documents.
+    
+    Args:
+        payload: GetAllTagsPayload containing credentials
+        
+    Returns:
+        JSONResponse with list of all tags or error
+    """
+    try:
+        client = await client_manager.connect(payload.credentials)
+        
+        tags = await manager.weaviate_manager.get_all_tags(client=client)
+        
+        msg.info(f"Retrieved {len(tags)} unique tags")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "error": "",
+                "tags": tags,
+                "total_count": len(tags)
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to get all tags: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Failed to get all tags: {str(e)}",
+                "tags": [],
+                "total_count": 0
+            }
+        )
+
+
+@app.post("/api/documents/search_by_tags")
+async def search_documents_by_tags(payload: SearchDocumentsByTagsPayload):
+    """
+    Search documents by tags.
+    
+    Args:
+        payload: SearchDocumentsByTagsPayload containing search criteria
+        
+    Returns:
+        JSONResponse with matching documents or error
+    """
+    try:
+        client = await client_manager.connect(payload.credentials)
+        
+        documents, total_count = await manager.weaviate_manager.search_documents_by_tags(
+            client=client,
+            tags=payload.tags,
+            match_all=payload.match_all,
+            page=payload.page,
+            pageSize=payload.pageSize,
+            properties=["title", "extension", "fileSize", "labels", "source", "meta", "tags"]
+        )
+        
+        msg.info(f"Found {len(documents)} documents matching tags: {payload.tags}")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "error": "",
+                "documents": documents,
+                "total_count": total_count,
+                "page": payload.page,
+                "pageSize": payload.pageSize,
+                "tags": payload.tags,
+                "match_all": payload.match_all
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to search documents by tags: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Failed to search documents by tags: {str(e)}",
+                "documents": [],
+                "total_count": 0
+            }
+        )
 
 
 ### ADMIN

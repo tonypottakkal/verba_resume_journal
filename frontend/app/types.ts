@@ -340,6 +340,7 @@ export type VerbaDocument = {
   labels: string[];
   source: string;
   meta: any;
+  tags?: string[];
 };
 
 export type VerbaChunk = {
@@ -363,6 +364,7 @@ export type DocumentPreview = {
   title: string;
   uuid: string;
   labels: string[];
+  tags?: string[];
 };
 
 export type FormattedDocument = {

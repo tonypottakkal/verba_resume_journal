@@ -384,3 +384,29 @@ class ResetConversationSessionPayload(BaseModel):
 class DeleteConversationSessionPayload(BaseModel):
     credentials: Credentials
     session_id: str
+
+
+# Document Metadata and Tag Management Payloads
+
+
+class UpdateDocumentTagsPayload(BaseModel):
+    credentials: Credentials
+    document_id: str
+    tags: list[str]
+
+
+class GetDocumentTagsPayload(BaseModel):
+    credentials: Credentials
+    document_id: str
+
+
+class GetAllTagsPayload(BaseModel):
+    credentials: Credentials
+
+
+class SearchDocumentsByTagsPayload(BaseModel):
+    credentials: Credentials
+    tags: list[str]
+    match_all: bool = False  # If True, document must have all tags; if False, any tag
+    page: int = 1
+    pageSize: int = 10

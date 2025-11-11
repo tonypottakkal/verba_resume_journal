@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { VerbaDocument, Credentials } from "@/app/types";
 import { fetchSelectedDocument } from "@/app/api";
+import TagManager from "./TagManager";
 
 interface DocumentMetaViewProps {
   selectedDocument: string;
@@ -96,6 +97,18 @@ const DocumentMetaView: React.FC<DocumentMetaViewProps> = ({
                 Labels
               </p>
               <p className="text-text-verba max-w-full">{document.labels}</p>
+            </div>
+            <div className="p-4 flex flex-col gap-2 items-start justify-start">
+              <TagManager
+                documentId={selectedDocument}
+                credentials={credentials}
+                onTagsUpdated={(tags) => {
+                  // Update local document state with new tags
+                  if (document) {
+                    setDocument({ ...document, tags });
+                  }
+                }}
+              />
             </div>
           </div>
         )
