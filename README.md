@@ -1,4 +1,72 @@
-# Verba
+# Local Resume System
+
+## AI-Powered Professional Development Platform
+
+**An intelligent work journal and resume generation system powered by Retrieval-Augmented Generation (RAG) and Large Language Models**
+
+The Local Resume System is an advanced career management platform that transforms how professionals document, analyze, and leverage their work experience. Built on Verba's robust RAG infrastructure, this system combines agentic AI capabilities with semantic search to create a comprehensive solution for career development and job application optimization.
+
+### 🎯 What Makes This Different
+
+Traditional resume builders require manual entry and formatting. The Local Resume System takes a fundamentally different approach by:
+
+- **Continuous Documentation**: Maintain a searchable work journal with chat-style logging of daily accomplishments and projects
+- **Intelligent Skill Extraction**: Automatically identify and categorize technical skills from your work logs using LLM-powered semantic analysis
+- **Context-Aware Resume Generation**: Generate tailored resumes for specific job descriptions by retrieving relevant experiences through hybrid vector search
+- **Proficiency Analytics**: Track skill development over time with automated proficiency scoring based on usage frequency and context
+- **Privacy-First Architecture**: Deploy entirely locally or on your own infrastructure—your career data never leaves your control
+
+### 🚀 Key Capabilities
+
+**Agentic AI Features:**
+- **Semantic Work Log Analysis**: LLMs automatically extract skills, technologies, and accomplishments from natural language entries
+- **Job-Specific Resume Tailoring**: AI agents analyze job descriptions and retrieve the most relevant experiences from your work history
+- **Iterative Resume Refinement**: Conversational interface for refining generated resumes with context-aware suggestions
+- **Skill Categorization & Proficiency Scoring**: Automated classification of skills into domains with intelligent proficiency calculation
+
+**RAG-Enabled Intelligence:**
+- **Hybrid Search**: Combines semantic vector search with keyword matching for precise experience retrieval
+- **Multi-Document Context**: Query across all work logs, projects, and documents simultaneously
+- **Contextual Resume Generation**: Uses retrieved work experiences as context for LLM-powered resume writing
+- **Document Metadata Filtering**: Tag and filter documents for targeted resume generation
+
+**Professional Development Tools:**
+- **Skills Dashboard**: Interactive visualization of your technical competencies and growth over time
+- **Resume History Tracking**: Maintain a record of all generated resumes with associated job descriptions
+- **Multi-Format Export**: Generate resumes in Markdown, PDF, or DOCX formats
+- **Work Log Management**: Chat-style interface for quick daily logging with automatic skill detection
+
+### 🏗️ Architecture
+
+Built on proven technologies:
+- **Verba RAG Framework**: Production-ready retrieval-augmented generation pipeline
+- **Weaviate Vector Database**: High-performance semantic search and storage
+- **Next.js Frontend**: Modern, responsive user interface
+- **FastAPI Backend**: Scalable Python API with async support
+- **Multi-LLM Support**: Works with OpenAI, Anthropic, Cohere, Ollama, and more
+
+### 💡 Use Cases
+
+- **Job Seekers**: Generate tailored resumes for each application in minutes, not hours
+- **Career Professionals**: Maintain a searchable record of accomplishments and skills development
+- **Consultants & Freelancers**: Track projects and quickly generate client-specific experience summaries
+- **Technical Professionals**: Automatically catalog and visualize technical skill growth over time
+- **Career Coaches**: Help clients document and articulate their professional value proposition
+
+### 🙏 Credits & Inspiration
+
+This project builds upon and merges capabilities from two excellent open-source projects:
+
+- **[Verba (Weaviate)](https://github.com/weaviate/Verba)** - The foundational RAG framework providing document ingestion, semantic search, and LLM integration. Verba's modular architecture and production-ready components form the backbone of this system.
+
+- **[Super-People (Weaviate)](https://github.com/prachi-b-modi/super-people)** - Inspired the resume generation and skills analysis features. The concept of using work logs for automated resume creation and skill tracking originated from this innovative project.
+
+We're grateful to both projects and their contributors for making their work available to the community. This project aims to combine the best of both worlds while adding new capabilities for professional development.
+
+---
+
+# Verba 
+### "Original documentation + supplemental explanations"
 
 ## The Golden RAGtriever - Community Edition ✨
 
