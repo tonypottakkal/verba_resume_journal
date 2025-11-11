@@ -31,6 +31,7 @@ pip install goldenverba
 - [Quickstart: Deploy with Docker](#how-to-install-verba-with-docker)
 - [💾 Verba Walkthrough](#️verba-walkthrough)
 - [💖 Open Source Contribution](#open-source-contribution)
+- [📚 Documentation](#documentation)
 - [🚩 Known Issues](#known-issues)
 - [❔FAQ](#faq)
 
@@ -443,6 +444,43 @@ Your contributions are always welcome! Feel free to contribute ideas, feedback, 
 ### Project Architecture
 
 You can learn more about Verba's architecture and implementation in its [technical documentation](./TECHNICAL.md) and [frontend documentation](./FRONTEND.md). It's recommended to have a look at them before making any contributions.
+
+## Documentation
+
+### Comprehensive Guides
+
+To help you understand and work with the Verba codebase, we've created detailed documentation:
+
+- **[Verba Codebase Guide](./VERBA_CODEBASE_GUIDE.md)** - Deep dive into Verba's architecture, component system, and backend implementation. Learn how the RAG pipeline works, understand the VerbaManager orchestration, and explore the modular component system (Readers, Chunkers, Embedders, Retrievers, Generators).
+
+- **[Verba UI & Implementation Guide](./VERBA_UI_AND_IMPLEMENTATION_GUIDE.md)** - Complete guide to Verba's frontend architecture, UI components, and implementation patterns. Covers the chat interface, document explorer, retrieval system, and how to extend the UI with custom features.
+
+### Resume-Specific Features
+
+This fork extends Verba with resume generation and work log management capabilities:
+
+**New Features:**
+- **Work Log Management** - Chat-style interface for logging daily work activities with automatic skill extraction
+- **Skills Analysis** - Interactive visualization of extracted skills with proficiency scoring and categorization
+- **Resume Generation** - AI-powered resume generation tailored to specific job descriptions using your work history
+- **Resume History** - Track and manage all generated resumes with regeneration and export capabilities
+- **Configuration UI** - Comprehensive settings for skill extraction, resume generation, and proficiency calculation
+
+**New Components:**
+- `WorkLogManager` - Backend module for storing and managing work log entries
+- `SkillsExtractor` - LLM-powered skill extraction and categorization from work logs
+- `ResumeGenerator` - Hybrid search-based resume generation using job descriptions
+- `ResumeTracker` - Resume history and metadata management
+- `ResumeConfigComponent` - Frontend configuration interface for resume features
+
+**API Endpoints:**
+- `/api/worklogs` - Create, read, update, and delete work log entries
+- `/api/skills` - Retrieve skills breakdown and perform on-demand extraction
+- `/api/resumes/generate` - Generate tailored resumes from job descriptions
+- `/api/resumes` - Manage resume history and export in multiple formats (PDF, DOCX, Markdown)
+- `/api/config/resume` - Save and load resume-specific configuration
+
+For detailed implementation information, refer to the specification documents in `.kiro/specs/resume-rag-merger/`.
 
 ## Known Issues
 
