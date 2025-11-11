@@ -45,6 +45,12 @@ from goldenverba.server.types import (
     GetSkillsPayload,
     GetSkillCategoriesPayload,
     ExtractSkillsPayload,
+    GenerateResumePayload,
+    GetResumesPayload,
+    GetResumeByIdPayload,
+    RegenerateResumePayload,
+    DeleteResumePayload,
+    ExportResumePayload,
 )
 
 load_dotenv()
@@ -1332,5 +1338,640 @@ async def extract_skills(payload: ExtractSkillsPayload):
                 "skills": [],
                 "categorized_skills": {},
                 "total_skills": 0
+            }
+        )
+
+
+
+### RESUME GENERATION AND TRACKING ENDPOINTS
+
+
+@app.post("/api/resumes/generate")
+async def generate_resume(payload: GenerateResumePayload):
+    """
+    Generate a new resume from a job description.
+    
+    This endpoint uses the ResumeGenerator to:
+    1. Extract job requirements from the description
+    2. Retrieve relevant work log entries
+    3. Generate a tailored resume using LLM
+    4. Store the resume with tracking information
+    
+    Args:
+        payload: GenerateResumePayload containing job description and options
+        
+    Returns:
+        JSONResponse with generated resume or error
+    """
+    if production == "Demo":
+        msg.warn("Can't generate resumes when in Production Mode")
+        return JSONResponse(
+            status_code=403,
+            content={
+                "error": "Resume generation is disabled in Demo mode",
+                "resume": None
+            }
+        )
+    
+    try:
+        client = await client_manager.connect(payload.credentials)
+        
+        from goldenverba.components.resume_generator import ResumeGenerator, ResumeOptions
+        from goldenverba.components.resume_tracker import ResumeTracker
+        
+        resume_generator = ResumeGenerator()
+        resume_tracker = ResumeTracker()
+        
+        # Get RAG config for generator and embedder settings
+        rag_config = await manager.load_rag_config(client)
+        generator_config = rag_config.get("Generator", {})
+        embedder_config = rag_config.get("Embedder", {})
+        
+        # Get generator and embedder instances
+        generator = manager.generator_manager.get_generator()
+        embedder = manager.embedder_manager.get_embedder()
+        
+        msg.info(f"Generating resume for role: {payload.target_role or 'unspecified'}")
+        
+        # Step 1: Extract job requirements
+        requirements = await resume_generator.extract_job_requirements(
+            job_description=payload.job_description,
+            generator=generator,
+            generator_config=generator_config
+        )
+        
+        # Step 2: Retrieve relevant experiences
+        experiences = await resume_generator.retrieve_relevant_experiences(
+            client=client,
+            requirements=requirements,
+            embedder=embedder,
+            embedder_config=embedder_config,
+            limit=20,
+            alpha=0.5
+        )
+        
+        # Step 3: Generate resume
+        options = ResumeOptions(
+            format=payload.format,
+            sections=payload.sections,
+            max_length=payload.max_length,
+            tone=payload.tone
+        )
+        
+        resume = await resume_generator.generate_resume(
+            job_description=payload.job_description,
+            experiences=experiences,
+            requirements=requirements,
+            generator=generator,
+            generator_config=generator_config,
+            options=options
+        )
+        
+        # Extract source log IDs from experiences
+        source_log_ids = [exp.get("id") for exp in experiences if exp.get("source") == resume_generator.worklog_collection]
+        
+        # Step 4: Save the resume record for tracking
+        resume_record = await resume_tracker.save_resume_record(
+            client=client,
+            resume_content=resume.content,
+            job_description=payload.job_description,
+            target_role=payload.target_role or "Unspecified",
+            format=payload.format,
+            source_log_ids=source_log_ids,
+            metadata={
+                "user_id": payload.user_id,
+                "experience_count": len(experiences),
+                "requirements": requirements.to_dict()
+            }
+        )
+        
+        msg.good(f"Successfully generated resume: {resume_record.id}")
+        
+        return JSONResponse(
+            status_code=201,
+            content={
+                "error": "",
+                "resume": {
+                    "id": resume_record.id,
+                    "content": resume_record.resume_content,
+                    "job_description": resume_record.job_description,
+                    "target_role": resume_record.target_role,
+                    "format": resume_record.format,
+                    "generated_at": resume_record.generated_at.isoformat(),
+                    "source_log_ids": resume_record.source_log_ids,
+                    "metadata": resume_record.metadata
+                }
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to generate resume: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Failed to generate resume: {str(e)}",
+                "resume": None
+            }
+        )
+
+
+@app.post("/api/resumes")
+async def get_resumes(payload: GetResumesPayload):
+    """
+    Retrieve resume history with optional filtering.
+    
+    Args:
+        payload: GetResumesPayload containing filter criteria
+        
+    Returns:
+        JSONResponse with list of resume records or error
+    """
+    try:
+        client = await client_manager.connect(payload.credentials)
+        
+        from goldenverba.components.resume_tracker import ResumeTracker
+        from datetime import datetime
+        
+        resume_tracker = ResumeTracker()
+        
+        # Parse dates if provided
+        start_dt = datetime.fromisoformat(payload.start_date) if payload.start_date else None
+        end_dt = datetime.fromisoformat(payload.end_date) if payload.end_date else None
+        
+        # Get resume history with filters
+        records = await resume_tracker.get_resume_history(
+            client=client,
+            target_role=payload.target_role,
+            start_date=start_dt,
+            end_date=end_dt,
+            format=None,
+            limit=payload.limit,
+            offset=payload.offset
+        )
+        
+        # Get total count
+        total_count = await resume_tracker.count_resume_records(
+            client=client,
+            target_role=payload.target_role
+        )
+        
+        resumes = [
+            {
+                "id": record.id,
+                "content": record.resume_content,
+                "job_description": record.job_description,
+                "target_role": record.target_role,
+                "format": record.format,
+                "generated_at": record.generated_at.isoformat(),
+                "source_log_ids": record.source_log_ids,
+                "metadata": record.metadata
+            }
+            for record in records
+        ]
+        
+        msg.info(f"Retrieved {len(resumes)} resume records")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "error": "",
+                "resumes": resumes,
+                "total_count": total_count,
+                "limit": payload.limit,
+                "offset": payload.offset
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to retrieve resume history: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Failed to retrieve resume history: {str(e)}",
+                "resumes": [],
+                "total_count": 0
+            }
+        )
+
+
+@app.post("/api/resumes/{resume_id}")
+async def get_resume_by_id(resume_id: str, payload: GetResumeByIdPayload):
+    """
+    Retrieve a specific resume by ID.
+    
+    Args:
+        resume_id: UUID of the resume record
+        payload: GetResumeByIdPayload containing credentials
+        
+    Returns:
+        JSONResponse with resume record or error
+    """
+    try:
+        client = await client_manager.connect(payload.credentials)
+        
+        from goldenverba.components.resume_tracker import ResumeTracker
+        
+        resume_tracker = ResumeTracker()
+        
+        # Verify resume_id matches payload
+        if payload.resume_id != resume_id:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": "Resume ID in URL does not match payload",
+                    "resume": None
+                }
+            )
+        
+        record = await resume_tracker.get_resume_by_id(
+            client=client,
+            resume_id=resume_id
+        )
+        
+        if record is None:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "error": f"Resume not found: {resume_id}",
+                    "resume": None
+                }
+            )
+        
+        msg.info(f"Retrieved resume: {resume_id}")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "error": "",
+                "resume": {
+                    "id": record.id,
+                    "content": record.resume_content,
+                    "job_description": record.job_description,
+                    "target_role": record.target_role,
+                    "format": record.format,
+                    "generated_at": record.generated_at.isoformat(),
+                    "source_log_ids": record.source_log_ids,
+                    "metadata": record.metadata
+                }
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to retrieve resume: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Failed to retrieve resume: {str(e)}",
+                "resume": None
+            }
+        )
+
+
+@app.post("/api/resumes/{resume_id}/regenerate")
+async def regenerate_resume(resume_id: str, payload: RegenerateResumePayload):
+    """
+    Regenerate a resume using the same job description with updated work log data.
+    
+    Args:
+        resume_id: UUID of the resume to regenerate
+        payload: RegenerateResumePayload containing credentials and options
+        
+    Returns:
+        JSONResponse with regenerated resume or error
+    """
+    if production == "Demo":
+        msg.warn("Can't regenerate resumes when in Production Mode")
+        return JSONResponse(
+            status_code=403,
+            content={
+                "error": "Resume regeneration is disabled in Demo mode",
+                "resume": None
+            }
+        )
+    
+    try:
+        client = await client_manager.connect(payload.credentials)
+        
+        from goldenverba.components.resume_generator import ResumeGenerator, ResumeOptions
+        from goldenverba.components.resume_tracker import ResumeTracker
+        
+        resume_generator = ResumeGenerator()
+        resume_tracker = ResumeTracker()
+        
+        # Verify resume_id matches payload
+        if payload.resume_id != resume_id:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": "Resume ID in URL does not match payload",
+                    "resume": None
+                }
+            )
+        
+        # Get the original resume record
+        original_record = await resume_tracker.get_resume_by_id(
+            client=client,
+            resume_id=resume_id
+        )
+        
+        if original_record is None:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "error": f"Resume not found: {resume_id}",
+                    "resume": None
+                }
+            )
+        
+        # Get RAG config for generator and embedder settings
+        rag_config = await manager.load_rag_config(client)
+        generator_config = rag_config.get("Generator", {})
+        embedder_config = rag_config.get("Embedder", {})
+        
+        # Get generator and embedder instances
+        generator = manager.generator_manager.get_generator()
+        embedder = manager.embedder_manager.get_embedder()
+        
+        msg.info(f"Regenerating resume: {resume_id}")
+        
+        # Step 1: Extract job requirements
+        requirements = await resume_generator.extract_job_requirements(
+            job_description=original_record.job_description,
+            generator=generator,
+            generator_config=generator_config
+        )
+        
+        # Step 2: Retrieve relevant experiences (with updated data)
+        experiences = await resume_generator.retrieve_relevant_experiences(
+            client=client,
+            requirements=requirements,
+            embedder=embedder,
+            embedder_config=embedder_config,
+            limit=20,
+            alpha=0.5
+        )
+        
+        # Step 3: Generate resume
+        options = ResumeOptions(
+            format=original_record.format,
+            sections=None,  # Use defaults
+            max_length=2000,
+            tone="professional"
+        )
+        
+        resume = await resume_generator.generate_resume(
+            job_description=original_record.job_description,
+            experiences=experiences,
+            requirements=requirements,
+            generator=generator,
+            generator_config=generator_config,
+            options=options
+        )
+        
+        # Extract source log IDs from experiences
+        source_log_ids = [exp.get("id") for exp in experiences if exp.get("source") == resume_generator.worklog_collection]
+        
+        # Save the new resume record
+        new_record = await resume_tracker.save_resume_record(
+            client=client,
+            resume_content=resume.content,
+            job_description=original_record.job_description,
+            target_role=original_record.target_role,
+            format=original_record.format,
+            source_log_ids=source_log_ids,
+            metadata={
+                "user_id": original_record.metadata.get("user_id") if original_record.metadata else None,
+                "regenerated_from": resume_id,
+                "experience_count": len(experiences),
+                "requirements": requirements.to_dict()
+            }
+        )
+        
+        msg.good(f"Successfully regenerated resume: {new_record.id}")
+        
+        return JSONResponse(
+            status_code=201,
+            content={
+                "error": "",
+                "resume": {
+                    "id": new_record.id,
+                    "content": new_record.resume_content,
+                    "job_description": new_record.job_description,
+                    "target_role": new_record.target_role,
+                    "format": new_record.format,
+                    "generated_at": new_record.generated_at.isoformat(),
+                    "source_log_ids": new_record.source_log_ids,
+                    "metadata": new_record.metadata
+                },
+                "original_resume_id": resume_id
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to regenerate resume: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Failed to regenerate resume: {str(e)}",
+                "resume": None
+            }
+        )
+
+
+@app.delete("/api/resumes/{resume_id}")
+async def delete_resume(resume_id: str, payload: DeleteResumePayload):
+    """
+    Delete a resume record from history.
+    
+    Args:
+        resume_id: UUID of the resume to delete
+        payload: DeleteResumePayload containing credentials
+        
+    Returns:
+        JSONResponse with success status or error
+    """
+    if production == "Demo":
+        msg.warn("Can't delete resumes when in Production Mode")
+        return JSONResponse(
+            status_code=403,
+            content={
+                "error": "Resume deletion is disabled in Demo mode",
+                "deleted": False
+            }
+        )
+    
+    try:
+        client = await client_manager.connect(payload.credentials)
+        
+        from goldenverba.components.resume_tracker import ResumeTracker
+        
+        resume_tracker = ResumeTracker()
+        
+        # Verify resume_id matches payload
+        if payload.resume_id != resume_id:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": "Resume ID in URL does not match payload",
+                    "deleted": False
+                }
+            )
+        
+        success = await resume_tracker.delete_resume_record(
+            client=client,
+            resume_id=resume_id
+        )
+        
+        if not success:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "error": f"Resume not found: {resume_id}",
+                    "deleted": False
+                }
+            )
+        
+        msg.good(f"Deleted resume: {resume_id}")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "error": "",
+                "deleted": True,
+                "resume_id": resume_id
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to delete resume: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Failed to delete resume: {str(e)}",
+                "deleted": False
+            }
+        )
+
+
+@app.post("/api/resumes/{resume_id}/export")
+async def export_resume(resume_id: str, payload: ExportResumePayload):
+    """
+    Export a resume in the specified format (PDF, DOCX, or Markdown).
+    
+    Args:
+        resume_id: UUID of the resume to export
+        payload: ExportResumePayload containing format and credentials
+        
+    Returns:
+        FileResponse with the exported resume file or JSONResponse with error
+    """
+    if production == "Demo":
+        msg.warn("Can't export resumes when in Production Mode")
+        return JSONResponse(
+            status_code=403,
+            content={
+                "error": "Resume export is disabled in Demo mode"
+            }
+        )
+    
+    try:
+        client = await client_manager.connect(payload.credentials)
+        
+        from goldenverba.components.resume_tracker import ResumeTracker
+        from goldenverba.components.resume_generator import ResumeGenerator, Resume
+        import tempfile
+        
+        resume_tracker = ResumeTracker()
+        resume_generator = ResumeGenerator()
+        
+        # Verify resume_id matches payload
+        if payload.resume_id != resume_id:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": "Resume ID in URL does not match payload"
+                }
+            )
+        
+        # Get the resume record
+        record = await resume_tracker.get_resume_by_id(
+            client=client,
+            resume_id=resume_id
+        )
+        
+        if record is None:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "error": f"Resume not found: {resume_id}"
+                }
+            )
+        
+        msg.info(f"Exporting resume {resume_id} as {payload.format}")
+        
+        # Create Resume object from record
+        resume = Resume(
+            content=record.resume_content,
+            format=record.format,
+            generated_at=record.generated_at,
+            resume_id=record.id,
+            metadata={
+                "target_role": record.target_role,
+                "job_description": record.job_description
+            }
+        )
+        
+        # Format the resume content
+        file_bytes = resume_generator.format_resume(
+            resume=resume,
+            target_format=payload.format
+        )
+        
+        # Determine file extension and media type
+        if payload.format == "pdf":
+            extension = "pdf"
+            media_type = "application/pdf"
+        elif payload.format == "docx":
+            extension = "docx"
+            media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        else:  # markdown
+            extension = "md"
+            media_type = "text/markdown"
+        
+        # Create a temporary file to store the export
+        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{extension}") as tmp_file:
+            tmp_file.write(file_bytes)
+            tmp_file_path = tmp_file.name
+        
+        # Generate filename
+        safe_role = record.target_role.replace(" ", "_").replace("/", "-")
+        filename = f"resume_{safe_role}_{resume_id[:8]}.{extension}"
+        
+        msg.good(f"Successfully exported resume as {filename}")
+        
+        return FileResponse(
+            path=tmp_file_path,
+            media_type=media_type,
+            filename=filename,
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}"
+            }
+        )
+        
+    except NotImplementedError as e:
+        msg.warn(f"Export format not yet implemented: {str(e)}")
+        return JSONResponse(
+            status_code=501,
+            content={
+                "error": f"Export format not yet implemented: {str(e)}"
+            }
+        )
+        
+    except Exception as e:
+        msg.fail(f"Failed to export resume: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Failed to export resume: {str(e)}"
             }
         )

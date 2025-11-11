@@ -314,3 +314,49 @@ class ExtractSkillsPayload(BaseModel):
     credentials: Credentials
     text: str
     use_cache: bool = True
+
+
+# Resume Generation and Tracking Payloads
+
+
+class GenerateResumePayload(BaseModel):
+    credentials: Credentials
+    job_description: str
+    target_role: str | None = None
+    format: Literal["markdown", "pdf", "docx"] = "markdown"
+    sections: list[str] | None = None
+    max_length: int = 2000
+    tone: str = "professional"
+    user_id: str | None = None
+
+
+class GetResumesPayload(BaseModel):
+    credentials: Credentials
+    user_id: str | None = None
+    start_date: str | None = None
+    end_date: str | None = None
+    target_role: str | None = None
+    limit: int = 50
+    offset: int = 0
+
+
+class GetResumeByIdPayload(BaseModel):
+    credentials: Credentials
+    resume_id: str
+
+
+class RegenerateResumePayload(BaseModel):
+    credentials: Credentials
+    resume_id: str
+    use_updated_data: bool = True
+
+
+class DeleteResumePayload(BaseModel):
+    credentials: Credentials
+    resume_id: str
+
+
+class ExportResumePayload(BaseModel):
+    credentials: Credentials
+    resume_id: str
+    format: Literal["pdf", "docx", "markdown"]
