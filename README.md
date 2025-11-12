@@ -546,6 +546,8 @@ Detailed documentation for specific features and implementations:
 
 - **[Skill Extraction on Document Ingestion](./docs/SKILL_EXTRACTION_ON_INGESTION.md)** - Comprehensive guide to the automatic skill extraction feature that runs as a post-processing hook during document ingestion. Covers the extraction process, skill categorization, proficiency scoring, and cleanup when documents are deleted.
 
+- **[Hybrid Search for Resume Generation](./docs/HYBRID_SEARCH.md)** - Complete guide to the hybrid search implementation that combines semantic similarity with keyword matching for optimal experience retrieval. Includes configuration parameters (alpha tuning, date filtering, recency boost), advanced ranking algorithm details, tuning scenarios, and best practices for generating tailored resumes.
+
 ### Resume-Specific Features
 
 This fork extends Verba with resume generation and work log management capabilities:

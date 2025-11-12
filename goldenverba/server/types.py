@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Any
 from pydantic import BaseModel
 from enum import Enum
 
@@ -330,6 +330,11 @@ class GenerateResumePayload(BaseModel):
     user_id: str | None = None
     session_id: str | None = None
     user_feedback: str | None = None
+    # Hybrid search parameters
+    alpha: float = 0.5  # Balance between semantic (0.0) and keyword (1.0) search
+    date_range_days: int | None = None  # Filter experiences from last N days
+    boost_recent: bool = True  # Apply recency boost to ranking
+    limit: int = 20  # Maximum number of experiences to retrieve
 
 
 class GetResumesPayload(BaseModel):
@@ -351,6 +356,11 @@ class RegenerateResumePayload(BaseModel):
     credentials: Credentials
     resume_id: str
     use_updated_data: bool = True
+    # Hybrid search parameters
+    alpha: float = 0.5  # Balance between semantic (0.0) and keyword (1.0) search
+    date_range_days: int | None = None  # Filter experiences from last N days
+    boost_recent: bool = True  # Apply recency boost to ranking
+    limit: int = 20  # Maximum number of experiences to retrieve
 
 
 class DeleteResumePayload(BaseModel):

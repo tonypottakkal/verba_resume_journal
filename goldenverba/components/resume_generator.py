@@ -3,6 +3,36 @@ ResumeGenerator module for generating tailored resumes from job descriptions.
 
 This module provides functionality to extract job requirements, retrieve relevant
 work experiences using hybrid search, and generate professional resumes using LLM.
+
+HYBRID SEARCH CONFIGURATION:
+----------------------------
+The retrieve_relevant_experiences method uses Weaviate's hybrid search to combine
+semantic similarity with keyword matching for optimal retrieval.
+
+Alpha Parameter (controls search balance):
+- 0.0: Pure semantic search (best for conceptual matches)
+- 0.3: Semantic-heavy (good for finding related experiences)
+- 0.5: Balanced (recommended default for most use cases)
+- 0.7: Keyword-heavy (good for exact skill matches)
+- 1.0: Pure keyword search (best for specific terms)
+
+Ranking Algorithm:
+The system applies a multi-factor ranking algorithm to prioritize experiences:
+1. Base hybrid search score (weight: 1.0)
+2. Skill match bonus (weight: 0.3) - experiences matching more required skills
+3. Recency boost (weight: 0.2) - more recent experiences ranked higher
+4. Content quality (weight: 0.1) - longer, detailed experiences preferred
+
+Date Range Filtering:
+- date_range_days: Filter to experiences from the last N days
+- boost_recent: Apply recency boost to ranking (recommended: True)
+
+Recency Boost Scale:
+- Last 30 days: 1.0
+- Last 90 days: 0.8
+- Last 180 days: 0.6
+- Last 365 days: 0.4
+- Older: 0.2
 """
 
 from wasabi import msg
@@ -215,10 +245,16 @@ JSON Response:"""
         embedder,
         embedder_config: dict,
         limit: int = 20,
-        alpha: float = 0.5
+        alpha: float = 0.5,
+        date_range_days: Optional[int] = None,
+        boost_recent: bool = True
     ) -> List[Dict[str, Any]]:
         """
         Find matching work experiences using Weaviate hybrid search.
+        
+        Combines semantic similarity with keyword matching for optimal retrieval.
+        Implements ranking algorithm to prioritize most relevant experiences.
+        Supports date range filtering to focus on recent experiences.
         
         Args:
             client: Weaviate async client instance
@@ -227,9 +263,12 @@ JSON Response:"""
             embedder_config: Configuration for the embedder
             limit: Maximum number of results to return
             alpha: Balance between semantic (0.0) and keyword (1.0) search
+                   Recommended: 0.5 for balanced, 0.3 for more semantic, 0.7 for more keyword
+            date_range_days: Optional number of days to look back (None = all time)
+            boost_recent: Whether to boost scores for more recent experiences
             
         Returns:
-            List[Dict[str, Any]]: List of relevant work log entries and chunks
+            List[Dict[str, Any]]: List of relevant work log entries and chunks, ranked by relevance
             
         Raises:
             Exception: If retrieval fails
@@ -246,6 +285,14 @@ JSON Response:"""
             
             experiences = []
             
+            # Calculate date filter if specified
+            date_filter = None
+            if date_range_days:
+                from datetime import timedelta
+                cutoff_date = datetime.now() - timedelta(days=date_range_days)
+                date_filter = cutoff_date
+                msg.info(f"Filtering experiences from the last {date_range_days} days (since {cutoff_date.date()})")
+            
             # Search work logs
             if await client.collections.exists(self.worklog_collection):
                 worklog_results = await self._search_collection(
@@ -255,7 +302,8 @@ JSON Response:"""
                     vector=query_vector[0] if query_vector else None,
                     limit=limit // 2,
                     alpha=alpha,
-                    required_skills=requirements.required_skills
+                    required_skills=requirements.required_skills,
+                    date_filter=date_filter
                 )
                 experiences.extend(worklog_results)
             
@@ -268,15 +316,20 @@ JSON Response:"""
                     vector=query_vector[0] if query_vector else None,
                     limit=limit // 2,
                     alpha=alpha,
-                    required_skills=requirements.required_skills
+                    required_skills=requirements.required_skills,
+                    date_filter=date_filter
                 )
                 experiences.extend(chunk_results)
             
-            # Sort by relevance score
-            experiences.sort(key=lambda x: x.get("score", 0), reverse=True)
+            # Apply advanced ranking algorithm
+            ranked_experiences = self._rank_experiences(
+                experiences=experiences,
+                requirements=requirements,
+                boost_recent=boost_recent
+            )
             
-            msg.good(f"Retrieved {len(experiences)} relevant experiences")
-            return experiences[:limit]
+            msg.good(f"Retrieved and ranked {len(ranked_experiences)} relevant experiences")
+            return ranked_experiences[:limit]
             
         except Exception as e:
             msg.fail(f"Failed to retrieve relevant experiences: {str(e)}")
@@ -300,6 +353,180 @@ JSON Response:"""
         
         return " ".join(query_parts)
     
+    def _rank_experiences(
+        self,
+        experiences: List[Dict[str, Any]],
+        requirements: JobRequirements,
+        boost_recent: bool = True
+    ) -> List[Dict[str, Any]]:
+        """
+        Apply advanced ranking algorithm to prioritize most relevant experiences.
+        
+        Ranking factors:
+        1. Base relevance score from hybrid search
+        2. Skill match bonus (experiences matching more required skills rank higher)
+        3. Recency boost (more recent experiences get a score boost)
+        4. Content quality (longer, more detailed experiences rank higher)
+        
+        Args:
+            experiences: List of retrieved experiences
+            requirements: Job requirements for skill matching
+            boost_recent: Whether to apply recency boost
+            
+        Returns:
+            List of experiences sorted by final ranking score
+        """
+        from datetime import datetime, timedelta
+        
+        ranked = []
+        
+        for exp in experiences:
+            # Start with base hybrid search score
+            base_score = exp.get("score", 0.0)
+            
+            # Factor 1: Skill match bonus
+            skill_bonus = self._calculate_skill_match_bonus(exp, requirements)
+            
+            # Factor 2: Recency boost
+            recency_boost = 0.0
+            if boost_recent and exp.get("timestamp"):
+                recency_boost = self._calculate_recency_boost(exp["timestamp"])
+            
+            # Factor 3: Content quality score
+            quality_score = self._calculate_content_quality(exp)
+            
+            # Calculate final score with weighted factors
+            final_score = (
+                base_score * 1.0 +          # Base hybrid search score (weight: 1.0)
+                skill_bonus * 0.3 +          # Skill match bonus (weight: 0.3)
+                recency_boost * 0.2 +        # Recency boost (weight: 0.2)
+                quality_score * 0.1          # Content quality (weight: 0.1)
+            )
+            
+            # Add ranking metadata
+            exp["final_score"] = final_score
+            exp["ranking_details"] = {
+                "base_score": base_score,
+                "skill_bonus": skill_bonus,
+                "recency_boost": recency_boost,
+                "quality_score": quality_score
+            }
+            
+            ranked.append(exp)
+        
+        # Sort by final score
+        ranked.sort(key=lambda x: x["final_score"], reverse=True)
+        
+        return ranked
+    
+    def _calculate_skill_match_bonus(
+        self,
+        experience: Dict[str, Any],
+        requirements: JobRequirements
+    ) -> float:
+        """
+        Calculate bonus score based on skill matches.
+        
+        Args:
+            experience: The experience to evaluate
+            requirements: Job requirements with required skills
+            
+        Returns:
+            float: Skill match bonus (0.0 to 1.0)
+        """
+        if not requirements.required_skills:
+            return 0.0
+        
+        content = experience.get("content", "").lower()
+        extracted_skills = experience.get("properties", {}).get("extracted_skills", [])
+        
+        # Count skill matches in content and extracted skills
+        matches = 0
+        for skill in requirements.required_skills:
+            skill_lower = skill.lower()
+            if skill_lower in content or skill in extracted_skills:
+                matches += 1
+        
+        # Normalize to 0-1 range
+        return matches / len(requirements.required_skills)
+    
+    def _calculate_recency_boost(self, timestamp: Any) -> float:
+        """
+        Calculate recency boost based on how recent the experience is.
+        
+        More recent experiences get higher boost:
+        - Last 30 days: 1.0
+        - Last 90 days: 0.8
+        - Last 180 days: 0.6
+        - Last 365 days: 0.4
+        - Older: 0.2
+        
+        Args:
+            timestamp: The timestamp of the experience
+            
+        Returns:
+            float: Recency boost (0.0 to 1.0)
+        """
+        try:
+            from datetime import timedelta
+            
+            # Parse timestamp if it's a string
+            if isinstance(timestamp, str):
+                # Try parsing ISO format
+                try:
+                    exp_date = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                except:
+                    return 0.2  # Default for unparseable dates
+            elif isinstance(timestamp, datetime):
+                exp_date = timestamp
+            else:
+                return 0.2
+            
+            # Calculate age in days
+            age_days = (datetime.now() - exp_date.replace(tzinfo=None)).days
+            
+            if age_days < 30:
+                return 1.0
+            elif age_days < 90:
+                return 0.8
+            elif age_days < 180:
+                return 0.6
+            elif age_days < 365:
+                return 0.4
+            else:
+                return 0.2
+                
+        except Exception as e:
+            msg.warn(f"Could not calculate recency boost: {str(e)}")
+            return 0.2
+    
+    def _calculate_content_quality(self, experience: Dict[str, Any]) -> float:
+        """
+        Calculate content quality score based on length and structure.
+        
+        Longer, more detailed experiences are considered higher quality.
+        
+        Args:
+            experience: The experience to evaluate
+            
+        Returns:
+            float: Quality score (0.0 to 1.0)
+        """
+        content = experience.get("content", "")
+        
+        # Length-based quality (normalize to 0-1)
+        # Assume 100-500 words is optimal
+        word_count = len(content.split())
+        
+        if word_count < 50:
+            length_score = word_count / 50  # Scale up to 50 words
+        elif word_count <= 500:
+            length_score = 1.0  # Optimal range
+        else:
+            length_score = max(0.5, 1.0 - (word_count - 500) / 1000)  # Penalize very long
+        
+        return length_score
+    
     async def _search_collection(
         self,
         client: WeaviateAsyncClient,
@@ -308,10 +535,14 @@ JSON Response:"""
         vector: Optional[List[float]],
         limit: int,
         alpha: float,
-        required_skills: List[str]
+        required_skills: List[str],
+        date_filter: Optional[datetime] = None
     ) -> List[Dict[str, Any]]:
         """
         Search a Weaviate collection using hybrid search.
+        
+        Combines semantic similarity (via vector search) with keyword matching (via BM25)
+        for optimal retrieval. The alpha parameter controls the balance between the two.
         
         Args:
             client: Weaviate async client
@@ -319,8 +550,9 @@ JSON Response:"""
             query: Search query text
             vector: Query vector for semantic search
             limit: Maximum results
-            alpha: Hybrid search balance
+            alpha: Hybrid search balance (0.0 = pure semantic, 1.0 = pure keyword)
             required_skills: Skills to filter by
+            date_filter: Optional datetime to filter results after this date
             
         Returns:
             List of search results with scores
@@ -328,15 +560,35 @@ JSON Response:"""
         try:
             collection = client.collections.get(collection_name)
             
-            # Build filter for skills if applicable
+            # Build filter combining skills and date range
             filter_obj = None
+            filters = []
+            
+            # Add skill filter if applicable
             if required_skills and collection_name == self.worklog_collection:
                 # Filter work logs that contain any of the required skills
-                skill_filters = [
+                filters.append(
                     Filter.by_property("extracted_skills").contains_any(required_skills)
-                ]
-                if skill_filters:
-                    filter_obj = skill_filters[0]
+                )
+            
+            # Add date filter if specified
+            if date_filter:
+                # Filter by timestamp for work logs or doc_created for chunks
+                timestamp_field = "timestamp" if collection_name == self.worklog_collection else "doc_created"
+                try:
+                    filters.append(
+                        Filter.by_property(timestamp_field).greater_or_equal(date_filter)
+                    )
+                except Exception as e:
+                    msg.warn(f"Could not apply date filter on {timestamp_field}: {str(e)}")
+            
+            # Combine filters with AND logic
+            if len(filters) > 1:
+                filter_obj = filters[0]
+                for f in filters[1:]:
+                    filter_obj = filter_obj & f
+            elif len(filters) == 1:
+                filter_obj = filters[0]
             
             # Perform hybrid search
             if vector:
@@ -366,6 +618,7 @@ JSON Response:"""
                     "content": obj.properties.get("content", obj.properties.get("text", "")),
                     "score": obj.metadata.score if obj.metadata.score else 0.0,
                     "source": collection_name,
+                    "timestamp": obj.properties.get("timestamp", obj.properties.get("doc_created")),
                     "properties": obj.properties
                 }
                 results.append(result)

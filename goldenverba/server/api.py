@@ -1626,14 +1626,16 @@ async def generate_resume(payload: GenerateResumePayload):
             generator_config=generator_config
         )
         
-        # Step 2: Retrieve relevant experiences
+        # Step 2: Retrieve relevant experiences using hybrid search
         experiences = await resume_generator.retrieve_relevant_experiences(
             client=client,
             requirements=requirements,
             embedder=embedder,
             embedder_config=embedder_config,
-            limit=20,
-            alpha=0.5
+            limit=payload.limit,
+            alpha=payload.alpha,
+            date_range_days=payload.date_range_days,
+            boost_recent=payload.boost_recent
         )
         
         # Step 3: Generate resume
@@ -1929,14 +1931,16 @@ async def regenerate_resume(resume_id: str, payload: RegenerateResumePayload):
             generator_config=generator_config
         )
         
-        # Step 2: Retrieve relevant experiences (with updated data)
+        # Step 2: Retrieve relevant experiences (with updated data) using hybrid search
         experiences = await resume_generator.retrieve_relevant_experiences(
             client=client,
             requirements=requirements,
             embedder=embedder,
             embedder_config=embedder_config,
-            limit=20,
-            alpha=0.5
+            limit=payload.limit,
+            alpha=payload.alpha,
+            date_range_days=payload.date_range_days,
+            boost_recent=payload.boost_recent
         )
         
         # Step 3: Generate resume
