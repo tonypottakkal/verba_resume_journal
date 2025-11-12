@@ -1,45 +1,30 @@
 # Local Resume System Project
-* this is a work in progress, 
-* please reference supplemental documentation, and next steps for current status
+
+**An AI-powered professional development platform built on Verba's RAG framework**
+
+[![Based on Verba](https://img.shields.io/badge/Based%20on-Verba%202.0-green)](https://github.com/weaviate/Verba)
+[![Powered by Weaviate](https://img.shields.io/static/v1?label=powered%20by&message=Weaviate%20%E2%9D%A4&color=green&style=flat-square)](https://weaviate.io/)
+[![Work in Progress](https://img.shields.io/badge/Status-Work%20in%20Progress-yellow)](https://github.com/your-repo/local_resume)
+
+> **⚠️ DISCLAIMER**: This project is a work in progress and is provided as open-source software for educational and personal use. While we strive for quality and reliability, this software is provided "as is" without warranty of any kind. Use at your own risk. Always review and verify AI-generated content, especially for professional applications like resumes. We recommend testing thoroughly in a development environment before using for critical career documents.
 
 ## Table of Contents
 
 - [Project Description](#project-description)
-  - [AI-Powered Professional Development Platform](#ai-powered-professional-development-platform)
-  - [🎯 What Makes This Different](#-what-makes-this-different)
-  - [🚀 Key Capabilities](#-key-capabilities)
-  - [🏗️ Architecture](#️-architecture)
-  - [💡 Use Cases](#-use-cases)
-  - [🙏 Credits & Inspiration](#-credits--inspiration)
 - [🚀 Quick Start](#-quick-start)
-- [Verba](#verba)
-  - [🎯 What Is Verba?](#what-is-verba)
-  - [✨ Features](#feature-lists)
-- [✨ Getting Started with Verba](#getting-started-with-verba)
-- [🔑 API Keys](#api-keys)
-  - [Weaviate](#weaviate)
-  - [Ollama](#ollama)
-  - [Unstructured](#unstructured)
-  - [AssemblyAI](#assemblyai)
-  - [OpenAI](#openai)
-  - [HuggingFace](#huggingface)
-  - [Groq](#groq)
-  - [Novita AI](#novitaai)
-- [Quickstart: Deploy with pip](#how-to-deploy-with-pip)
-- [Quickstart: Build from Source](#how-to-build-from-source)
-- [Quickstart: Deploy with Docker](#how-to-install-verba-with-docker)
-- [💾 Verba Walkthrough](#️verba-walkthrough)
-- [💖 Open Source Contribution](#open-source-contribution)
-- [📚 Supplemental Documentation](#supplemental-documentation)
-- [🚩 Known Issues](#known-issues)
-- [❔FAQ](#faq)
+- [Resume-Specific Features](#resume-specific-features)
+- [📚 Documentation](#-documentation)
+- [🔧 Configuration](#-configuration)
+- [🙏 Credits & Inspiration](#-credits--inspiration)
+- [❔ FAQ](#-faq)
 
-# Project Description:
-## AI-Powered Professional Development Platform 
+---
 
-**An intelligent work journal and resume generation system powered by Retrieval-Augmented Generation (RAG) and Large Language Models**
+## Project Description
 
-The Local Resume System is an advanced career management platform that transforms how professionals document, analyze, and leverage their work experience. Built on Verba's robust RAG infrastructure, this system combines agentic AI capabilities with semantic search to create a comprehensive solution for career development and job application optimization.
+### AI-Powered Professional Development Platform
+
+The Local Resume System is an intelligent work journal and resume generation system powered by Retrieval-Augmented Generation (RAG) and Large Language Models. Built on Verba's robust RAG infrastructure, this system combines agentic AI capabilities with semantic search to create a comprehensive solution for career development and job application optimization.
 
 ### 🎯 What Makes This Different
 
@@ -54,22 +39,22 @@ Traditional resume builders require manual entry and formatting. The Local Resum
 ### 🚀 Key Capabilities
 
 **Agentic AI Features:**
-- **Semantic Work Log Analysis**: LLMs automatically extract skills, technologies, and accomplishments from natural language entries
-- **Job-Specific Resume Tailoring**: AI agents analyze job descriptions and retrieve the most relevant experiences from your work history
-- **Iterative Resume Refinement**: Conversational interface for refining generated resumes with context-aware suggestions
-- **Skill Categorization & Proficiency Scoring**: Automated classification of skills into domains with intelligent proficiency calculation
+- Semantic work log analysis with automatic skill extraction
+- Job-specific resume tailoring using hybrid search
+- Iterative resume refinement through conversational interface
+- Skill categorization and proficiency scoring
 
 **RAG-Enabled Intelligence:**
-- **Hybrid Search**: Combines semantic vector search with keyword matching for precise experience retrieval
-- **Multi-Document Context**: Query across all work logs, projects, and documents simultaneously
-- **Contextual Resume Generation**: Uses retrieved work experiences as context for LLM-powered resume writing
-- **Document Metadata Filtering**: Tag and filter documents for targeted resume generation
+- Hybrid search combining semantic similarity with keyword matching
+- Multi-document context querying across all work logs
+- Contextual resume generation using retrieved experiences
+- Document metadata filtering for targeted resume generation
 
 **Professional Development Tools:**
-- **Skills Dashboard**: Interactive visualization of your technical competencies and growth over time
-- **Resume History Tracking**: Maintain a record of all generated resumes with associated job descriptions
-- **Multi-Format Export**: Generate resumes in Markdown, PDF, or DOCX formats
-- **Work Log Management**: Chat-style interface for quick daily logging with automatic skill detection
+- Skills dashboard with interactive visualization
+- Resume history tracking with regeneration capabilities
+- Multi-format export (Markdown, PDF, DOCX)
+- Work log management with automatic skill detection
 
 ### 🏗️ Architecture
 
@@ -82,27 +67,17 @@ Built on proven technologies:
 
 ### 💡 Use Cases
 
-- **Job Seekers**: Generate tailored resumes for each application in minutes, not hours
-- **Career Professionals**: Maintain a searchable record of accomplishments and skills development
-- **Consultants & Freelancers**: Track projects and quickly generate client-specific experience summaries
-- **Technical Professionals**: Automatically catalog and visualize technical skill growth over time
-- **Career Coaches**: Help clients document and articulate their professional value proposition
-
-### 🙏 Credits & Inspiration
-
-This project builds upon and merges capabilities from two excellent open-source projects:
-
-- **[Verba (Weaviate)](https://github.com/weaviate/Verba)** - The foundational RAG framework providing document ingestion, semantic search, and LLM integration. Verba's modular architecture and production-ready components form the backbone of this system.
-
-- **[Super-People (Weaviate)](https://github.com/prachi-b-modi/super-people)** - Inspired the resume generation and skills analysis features. The concept of using work logs for automated resume creation and skill tracking originated from this innovative project.
-
-We're grateful to both projects and their contributors for making their work available to the community. This project aims to combine the best of both worlds while adding new capabilities for professional development.
+- **Job Seekers**: Generate tailored resumes for each application in minutes
+- **Career Professionals**: Maintain a searchable record of accomplishments
+- **Consultants & Freelancers**: Track projects and generate client-specific summaries
+- **Technical Professionals**: Automatically catalog technical skill growth
+- **Career Coaches**: Help clients document and articulate their value
 
 ---
 
-# 🚀 Quick Start
+## 🚀 Quick Start
 
-Get started with the Local Resume System in 5 minutes:
+Get started in 5 minutes:
 
 ### 1. Install
 
@@ -111,7 +86,7 @@ Get started with the Local Resume System in 5 minutes:
 pip install goldenverba
 
 # Or from source
-git clone https://github.com/tonypottakkal/verba_resume_journal.git
+git clone https://github.com/your-repo/local_resume.git
 cd local_resume
 pip install -e .
 ```
@@ -142,605 +117,239 @@ Visit `http://localhost:8000` and you're ready to go!
 
 ### 4. Use
 
-**Create Work Logs:**
-- Navigate to the Work Logs tab
-- Type your daily accomplishments
-- Skills are automatically extracted
+**Create Work Logs** → **Analyze Skills** → **Generate Resumes** → **Export**
 
-**Analyze Skills:**
-- Go to the Skills tab
-- View your skills organized by category
-- See proficiency scores and trends
-
-**Generate Resumes:**
-- Open the Resume tab
-- Paste a job description
-- Click "Generate Resume"
-- Export as PDF, DOCX, or Markdown
-
-**📖 For detailed instructions, see the [User Guide](./docs/USER_GUIDE.md)**
+📖 **For detailed instructions, see the [User Guide](./docs/USER_GUIDE.md)**
 
 ---
 
-# Verba 
-### "Original documentation + supplemental explanations"
+## Resume-Specific Features
 
-## The Golden RAGtriever - Community Edition ✨
+This project extends Verba with specialized resume generation and work log management:
 
-[![Weaviate](https://img.shields.io/static/v1?label=powered%20by&message=Weaviate%20%E2%9D%A4&color=green&style=flat-square)](https://weaviate.io/)
-[![PyPi downloads](https://static.pepy.tech/personalized-badge/goldenverba?period=total&units=international_system&left_color=grey&right_color=orange&left_text=pip%20downloads)](https://pypi.org/project/goldenverba/) [![Docker support](https://img.shields.io/badge/Docker_support-%E2%9C%93-4c1?style=flat-square&logo=docker&logoColor=white)](https://docs.docker.com/get-started/) [![Demo](https://img.shields.io/badge/Check%20out%20the%20demo!-yellow?&style=flat-square&logo=react&logoColor=white)](https://verba.weaviate.io/)
+### New Features
 
-Welcome to Verba: The Golden RAGtriever, an community-driven open-source application designed to offer an end-to-end, streamlined, and user-friendly interface for Retrieval-Augmented Generation (RAG) out of the box. In just a few easy steps, explore your datasets and extract insights with ease, either locally with Ollama and Huggingface or through LLM providers such as Anthrophic, Cohere, and OpenAI. This project is built with and for the community, please be aware that it might not be maintained with the same urgency as other Weaviate production applications. Feel free to contribute to the project and help us make Verba even better! <3
+- **Work Log Management** - Chat-style interface for logging daily work activities
+- **Automatic Skill Extraction** - LLM-powered extraction from all documents
+- **Skills Analysis** - Interactive visualization with proficiency scoring
+- **Resume Generation** - AI-powered tailored resume creation
+- **Resume History** - Track and manage all generated resumes
+- **Configuration UI** - Comprehensive settings for all resume features
 
-```
-pip install goldenverba
-```
+### New API Endpoints
 
-![Demo of Verba](https://github.com/weaviate/Verba/blob/2.0.0/img/verba.gif)
+- `/api/worklogs` - Work log CRUD operations
+- `/api/skills` - Skills analysis and extraction
+- `/api/resumes/generate` - Resume generation
+- `/api/resumes` - Resume history and export (PDF, DOCX, Markdown)
+- `/api/config/resume` - Resume-specific configuration
 
-## What Is Verba?
+### New Backend Components
 
-Verba is a fully-customizable personal assistant utilizing [Retrieval Augmented Generation (RAG)](https://weaviate.io/rag#:~:text=RAG%20with%20Weaviate,accuracy%20of%20AI%2Dgenerated%20content.) for querying and interacting with your data, **either locally or deployed via cloud**. Resolve questions around your documents, cross-reference multiple data points or gain insights from existing knowledge bases. Verba combines state-of-the-art RAG techniques with Weaviate's context-aware database. Choose between different RAG frameworks, data types, chunking & retrieving techniques, and LLM providers based on your individual use-case.
-
-## Open Source Spirit
-
-**Weaviate** is proud to offer this open-source project for the community. While we strive to address issues as fast as we can, please understand that it may not be maintained with the same rigor as production software. We welcome and encourage community contributions to help keep it running smoothly. Your support in fixing open issues quickly is greatly appreciated.
-
-### Watch our newest Verba video here:
-
-[![VIDEO LINK](https://github.com/weaviate/Verba/blob/main/img/thumbnail.png)](https://www.youtube.com/watch?v=2VCy-YjRRhA&t=40s&ab_channel=Weaviate%E2%80%A2VectorDatabase)
-
-## Feature Lists
-
-| 🤖 Model Support                  | Implemented | Description                                             |
-| --------------------------------- | ----------- | ------------------------------------------------------- |
-| Ollama (e.g. Llama3)              | ✅          | Local Embedding and Generation Models powered by Ollama |
-| HuggingFace (e.g. MiniLMEmbedder) | ✅          | Local Embedding Models powered by HuggingFace           |
-| Cohere (e.g. Command R+)          | ✅          | Embedding and Generation Models by Cohere               |
-| Anthrophic (e.g. Claude Sonnet)   | ✅          | Embedding and Generation Models by Anthrophic           |
-| OpenAI (e.g. GPT4)                | ✅          | Embedding and Generation Models by OpenAI               |
-| Groq (e.g. Llama3)                | ✅          | Generation Models by Groq (LPU inference)               |
-| Novita AI (e.g. Llama3.3)         | ✅          | Generation Models by Novita AI                          |
-| Upstage (e.g. Solar)              | ✅          | Embedding and Generation Models by Upstage              |
-
-| 🤖 Embedding Support | Implemented | Description                              |
-| -------------------- | ----------- | ---------------------------------------- |
-| Weaviate             | ✅          | Embedding Models powered by Weaviate     |
-| Ollama               | ✅          | Local Embedding Models powered by Ollama |
-| SentenceTransformers | ✅          | Embedding Models powered by HuggingFace  |
-| Cohere               | ✅          | Embedding Models by Cohere               |
-| VoyageAI             | ✅          | Embedding Models by VoyageAI             |
-| OpenAI               | ✅          | Embedding Models by OpenAI               |
-| Upstage              | ✅          | Embedding Models by Upstage              |
-
-| 📁 Data Support                                          | Implemented | Description                                    |
-| -------------------------------------------------------- | ----------- | ---------------------------------------------- |
-| [UnstructuredIO](https://docs.unstructured.io/welcome)   | ✅          | Import Data through Unstructured               |
-| [Firecrawl](https://www.firecrawl.dev/)                  | ✅          | Scrape and Crawl URL through Firecrawl         |
-| [UpstageDocumentParse](https://upstage.ai/)              | ✅          | Parse Documents through Upstage Document AI    |
-| PDF Ingestion                                            | ✅          | Import PDF into Verba                          |
-| GitHub & GitLab                                          | ✅          | Import Files from Github and GitLab            |
-| CSV/XLSX Ingestion                                       | ✅          | Import Table Data into Verba                   |
-| .DOCX                                                    | ✅          | Import .docx files                             |
-| Multi-Modal (using [AssemblyAI](https://assemblyai.com)) | ✅          | Import and Transcribe Audio through AssemblyAI |
-
-| ✨ RAG Features         | Implemented     | Description                                                               |
-| ----------------------- | --------------- | ------------------------------------------------------------------------- |
-| Hybrid Search           | ✅              | Semantic Search combined with Keyword Search                              |
-| Autocomplete Suggestion | ✅              | Verba suggests autocompletion                                             |
-| Filtering               | ✅              | Apply Filters (e.g. documents, document types etc.) before performing RAG |
-| Customizable Metadata   | ✅              | Free control over Metadata                                                |
-| Async Ingestion         | ✅              | Ingest data asynchronously to speed up the process                        |
-| Advanced Querying       | planned ⏱️      | Task Delegation Based on LLM Evaluation                                   |
-| Reranking               | planned ⏱️      | Rerank results based on context for improved results                      |
-| RAG Evaluation          | planned ⏱️      | Interface for Evaluating RAG pipelines                                    |
-| Agentic RAG             | out of scope ❌ | Agentic RAG pipelines                                                     |
-| Graph RAG               | out of scope ❌ | Graph-based RAG pipelines                                                 |
-
-| 🗡️ Chunking Techniques | Implemented | Description                                             |
-| ---------------------- | ----------- | ------------------------------------------------------- |
-| Token                  | ✅          | Chunk by Token powered by [spaCy](https://spacy.io/)    |
-| Sentence               | ✅          | Chunk by Sentence powered by [spaCy](https://spacy.io/) |
-| Semantic               | ✅          | Chunk and group by semantic sentence similarity         |
-| Recursive              | ✅          | Recursively chunk data based on rules                   |
-| HTML                   | ✅          | Chunk HTML files                                        |
-| Markdown               | ✅          | Chunk Markdown files                                    |
-| Code                   | ✅          | Chunk Code files                                        |
-| JSON                   | ✅          | Chunk JSON files                                        |
-
-| 🆒 Cool Bonus            | Implemented     | Description                                             |
-| ------------------------ | --------------- | ------------------------------------------------------- |
-| Docker Support           | ✅              | Verba is deployable via Docker                          |
-| Customizable Frontend    | ✅              | Verba's frontend is fully-customizable via the frontend |
-| Vector Viewer            | ✅              | Visualize your data in 3D                               |
-| Multi-User Collaboration | out of scope ❌ | Multi-User Collaboration in Verba                       |
-
-| 🤝 RAG Libraries | Implemented | Description                        |
-| ---------------- | ----------- | ---------------------------------- |
-| LangChain        | ✅          | Implement LangChain RAG pipelines  |
-| Haystack         | planned ⏱️  | Implement Haystack RAG pipelines   |
-| LlamaIndex       | planned ⏱️  | Implement LlamaIndex RAG pipelines |
-
-> Something is missing? Feel free to create a new issue or discussion with your idea!
-
-![Showcase of Verba](https://github.com/weaviate/Verba/blob/2.0.0/img/verba_screen.png)
-
----
-
-# Getting Started with Verba
-
-You have three deployment options for Verba:
-
-- Install via pip
-
-```
-pip install goldenverba
-```
-
-- Build from Source
-
-```
-git clone https://github.com/weaviate/Verba
-
-pip install -e .
-```
-
-- Use Docker for Deployment
-
-**Prerequisites**: If you're not using Docker, ensure that you have `Python >=3.10.0,<3.13.0` installed on your system.
-
-```
-git clone https://github.com/weaviate/Verba
-
-docker compose --env-file <your-env-file> up -d --build
-```
-
-> For detailed Docker deployment instructions, including resume-specific configuration, see [DOCKER_SETUP.md](./docs/DOCKER_SETUP.md).
-
-If you're unfamiliar with Python and Virtual Environments, please read the [python tutorial guidelines](./docs/PYTHON_TUTORIAL.md).
-
-# API Keys and Environment Variables
-
-You can set all API keys in the Verba frontend, but to make your life easier, we can also prepare a `.env` file in which Verba will automatically look for the keys. Create a `.env` in the same directory you want to start Verba in. You can find an `.env.example` file in the [goldenverba](./goldenverba/.env.example) directory.
-
-> Make sure to only set environment variables you intend to use, environment variables with missing or incorrect values may lead to errors.
-
-Below is a comprehensive list of the API keys and variables you may require:
-
-| Environment Variable   | Value                                                      | Description                                                                                                                   |
-| ---------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| WEAVIATE_URL_VERBA     | URL to your hosted Weaviate Cluster                        | Connect to your [WCS](https://console.weaviate.cloud/) Cluster                                                                |
-| WEAVIATE_API_KEY_VERBA | API Credentials to your hosted Weaviate Cluster            | Connect to your [WCS](https://console.weaviate.cloud/) Cluster                                                                |
-| ANTHROPIC_API_KEY      | Your Anthropic API Key                                     | Get Access to [Anthropic](https://www.anthropic.com/) Models                                                                  |
-| OPENAI_API_KEY         | Your OpenAI Key                                            | Get Access to [OpenAI](https://openai.com/) Models                                                                            |
-| OPENAI_EMBED_API_KEY         | Your OpenAI Key                                            | Use a different endpoint for embeddings                                                                            |
-| OPENAI_BASE_URL        | URL to OpenAI instance                                     | Models                                                                                                                        |
-| OPENAI_EMBED_BASE_URL        | URL to OpenAI instance                                     | Use a different endpoint for embeddings                                                                                                                        |
-| OPENAI_MODEL        | The name of the model to be used when selecting OpenAI as a Generator                                    | Default: the first model in the list returned by the endpoint                                                                                                                        |
-| OPENAI_EMBED_MODEL        | The name of the OpenAI embedding model to be used when selecting OpenAI as an Embedder                                    | Default: `text-embedding-3-small`                                                                                                                        |
-| OPENAI_CUSTOM_EMBED        | `true` \| `false`                                    | Allow Verba to recognize custom embedding model names (not only OpenAI ones)                                                                            |
-| COHERE_API_KEY         | Your API Key                                               | Get Access to [Cohere](https://cohere.com/) Models                                                                            |
-| GROQ_API_KEY           | Your Groq API Key                                          | Get Access to [Groq](https://groq.com/) Models                                                                                |
-| NOVITA_API_KEY         | Your Novita API Key                                        | Get Access to [Novita AI](https://novita.ai?utm_source=github_verba&utm_medium=github_readme&utm_campaign=github_link) Models |
-| OLLAMA_URL             | URL to your Ollama instance (e.g. http://localhost:11434 ) | Get Access to [Ollama](https://ollama.com/) Models                                                                            |
-| UNSTRUCTURED_API_KEY   | Your API Key                                               | Get Access to [Unstructured](https://docs.unstructured.io/welcome) Data Ingestion                                             |
-| UNSTRUCTURED_API_URL   | URL to Unstructured Instance                               | Get Access to [Unstructured](https://docs.unstructured.io/welcome) Data Ingestion                                             |
-| ASSEMBLYAI_API_KEY     | Your API Key                                               | Get Access to [AssemblyAI](https://assemblyai.com) Data Ingestion                                                             |
-| GITHUB_TOKEN           | Your GitHub Token                                          | Get Access to Data Ingestion via GitHub                                                                                       |
-| GITLAB_TOKEN           | Your GitLab Token                                          | Get Access to Data Ingestion via GitLab                                                                                       |
-| FIRECRAWL_API_KEY      | Your Firecrawl API Key                                     | Get Access to Data Ingestion via Firecrawl                                                                                    |
-| VOYAGE_API_KEY         | Your VoyageAI API Key                                      | Get Access to Embedding Models via VoyageAI                                                                                   |
-| EMBEDDING_SERVICE_URL  | URL to your Embedding Service Instance                     | Get Access to Embedding Models via [Weaviate Embedding Service](https://weaviate.io/developers/wcs/embeddings)                |
-| EMBEDDING_SERVICE_KEY  | Your Embedding Service Key                                 | Get Access to Embedding Models via [Weaviate Embedding Service](https://weaviate.io/developers/wcs/embeddings)                |
-| UPSTAGE_API_KEY        | Your Upstage API Key                                       | Get Access to [Upstage](https://upstage.ai/) Models                                                                           |
-| UPSTAGE_BASE_URL       | URL to Upstage instance                                    | Models                                                                                                                        |
-| DEFAULT_DEPLOYMENT     | Local, Weaviate, Custom, Docker                            | Set the default deployment mode                                                                                               |
-| SYSYEM_MESSAGE_PROMPT     | Prompt text value                            | Default value starts with: "You are Verba, a chatbot for..."                                                                                               |
-| OLLAMA_MODEL           | Your Ollama Model                                          | Set the default Ollama model to use                                                                                           |
-| OLLAMA_EMBED_MODEL     | Your Ollama Embedding Model                                | Set the default Ollama embedding model to use                                                                                 |
-| **Resume-Specific Variables** | | |
-| ENABLE_SKILL_EXTRACTION | true, false (default: true)                               | Enable/disable automatic skill extraction during document ingestion                                                           |
-| SKILL_EXTRACTION_MODEL | Model name (e.g., gpt-4o-mini)                             | Model to use for extracting skills from work logs and documents                                                               |
-| SKILL_EXTRACTION_PROVIDER | OpenAI, Cohere, Ollama, Anthropic                       | Provider for skill extraction                                                                                                 |
-| RESUME_GENERATION_MODEL | Model name (e.g., gpt-4o)                                 | Model to use for generating tailored resumes                                                                                  |
-| RESUME_GENERATION_PROVIDER | OpenAI, Cohere, Ollama, Anthropic                      | Provider for resume generation                                                                                                |
-| DEFAULT_RESUME_FORMAT  | pdf, docx, markdown                                        | Default format for resume exports                                                                                             |
-| MAX_CONVERSATION_HISTORY | Number (default: 10)                                     | Maximum conversation exchanges for iterative resume refinement                                                                |
-
-![API Keys in Verba](https://github.com/weaviate/Verba/blob/2.0.0/img/api_screen.png)
-
-## Weaviate
-
-Verba provides flexibility in connecting to Weaviate instances based on your needs. You have three options:
-
-1. **Local Deployment**: Use Weaviate Embedded which runs locally on your device (except Windows, choose the Docker/Cloud Deployment)
-2. **Docker Deployment**: Choose this option when you're running Verba's Dockerfile.
-3. **Cloud Deployment**: Use an existing Weaviate instance hosted on WCD to run Verba
-
-**💻 Weaviate Embedded**
-Embedded Weaviate is a deployment model that runs a Weaviate instance from your application code rather than from a stand-alone Weaviate server installation. When you run Verba in `Local Deployment`, it will setup and manage Embedded Weaviate in the background. Please note that Weaviate Embedded is not supported on Windows and is in Experimental Mode which can bring unexpected errors. We recommend using the Docker Deployment or Cloud Deployment instead. You can read more about Weaviate Embedded [here](https://weaviate.io/developers/weaviate/installation/embedded).
-
-**🌩️ Weaviate Cloud Deployment (WCD)**
-
-If you prefer a cloud-based solution, Weaviate Cloud (WCD) offers a scalable, managed environment. Learn how to set up a cloud cluster and get the API keys by following the [Weaviate Cluster Setup Guide](https://weaviate.io/developers/wcs/guides/create-instance).
-
-**🐳 Docker Deployment**
-Another local alternative is deploying Weaviate using Docker. For more details, follow the [How to install Verba with Docker](#how-to-install-verba-with-docker) section.
-
-![Deployment in Verba](https://github.com/weaviate/Verba/blob/2.0.0/img/verba_deployment.png)
-
-**⚙️ Custom Weaviate Deployment**
-
-If you're hosting Weaviate yourself, you can use the `Custom` deployment option in Verba. This will allow you to specify the URL, PORT, and API key of your Weaviate instance.
-
-## Ollama
-
-Verba supports Ollama models. Download and Install Ollama on your device (https://ollama.com/download). Make sure to install your preferred LLM using `ollama run <model>`.
-
-Tested with `llama3`, `llama3:70b` and `mistral`. The bigger models generally perform better, but need more computational power.
-
-> Make sure Ollama Server runs in the background and that you don't ingest documents with different ollama models since their vector dimension can vary that will lead to errors
-
-You can verify that by running the following command
-
-```
-ollama run llama3
-```
-
-## Unstructured
-
-Verba supports importing documents through Unstructured IO (e.g plain text, .pdf, .csv, and more). To use them you need the `UNSTRUCTURED_API_KEY` and `UNSTRUCTURED_API_URL` environment variable. You can get it from [Unstructured](https://unstructured.io/)
-
-> UNSTRUCTURED_API_URL is set to `https://api.unstructuredapp.io/general/v0/general` by default
-
-## AssemblyAI
-
-Verba supports importing documents through AssemblyAI (audio files or audio from video files). To use them you need the `ASSEMBLYAI_API_KEY` environment variable. You can get it from [AssemblyAI](https://assemblyai.com)
-
-## OpenAI
-
-Verba supports OpenAI Models such as Ada, GPT3, and GPT4. To use them, you need to specify the `OPENAI_API_KEY` environment variable. You can get it from [OpenAI](https://openai.com/)
-
-You can also add a `OPENAI_BASE_URL` to use proxies such as LiteLLM (https://github.com/BerriAI/litellm)
-
-```
-OPENAI_BASE_URL=YOUR-OPENAI_BASE_URL
-```
-### OpenAI Embeddings
-
-To specify a different endpoint for your embeddings, set the `OPENAI_EMBED_API_KEY` and `OPENAI_EMBED_BASE_URL` environment variables.
-
-If you are using a custom OpenAI Server for embeddings, ensure you set `OPENAI_CUSTOM_EMBED=true`. This will allow Verba to recognize custom embedding model names instead of the default OpenAI embedding model names.
-
-## HuggingFace
-
-If you want to use the HuggingFace Features, make sure to install the correct Verba package. It will install required packages to use the local embedding models.
-Please note that on startup, Verba will automatically download and install embedding models when used.
-
-```bash
-pip install goldenverba[huggingface]
-
-or
-
-pip install `.[huggingface]`
-```
-
-> If you're using Docker, modify the `Dockerfile` accordingly. It's not possible to install a custom Verba installation if you pull the Docker Image from the Docker Hub, as of now, you'd need to install the Docker deployment from the source code and modify the `Dockerfile` beforehand.
-
-## Groq
-
-To use Groq LPUs as generation engine, you need to get an API key from [Groq](https://console.groq.com/keys).
-
-> Although you can provide it in the graphical interface when Verba is up, it is recommended to specify it as `GROQ_API_KEY` environment variable before you launch the application.  
-> It will allow you to choose the generation model in an up-to-date available models list.
-
-## Novita
-
-To use Novita AI as generation engine, you need to get an API key from [Novita AI](https://novita.ai/settings/key-management?utm_source=github_verba&utm_medium=github_readme&utm_campaign=github_link).
-
-# How to deploy with pip
-
-`Python >=3.10.0`
-
-1. (Very Important) **Initialize a new Python Environment**
-
-```
-python3 -m virtualenv venv
-source venv/bin/activate
-```
-
-2. **Install Verba**
-
-```
-pip install goldenverba
-```
-
-3. **Launch Verba**
-
-```
-verba start
-```
-
-> You can specify the --port and --host via flags
-
-4. **Access Verba**
-
-```
-Visit localhost:8000
-```
-
-5. (Optional)**Create .env file and add environment variables**
-
-# How to build from Source
-
-1. **Clone the Verba repos**
-
-```
-git clone https://github.com/weaviate/Verba.git
-```
-
-2. **Initialize a new Python Environment**
-
-```
-python3 -m virtualenv venv
-source venv/bin/activate
-```
-
-3. **Install Verba**
-
-```
-pip install -e .
-```
-
-4. **Launch Verba**
-
-```
-verba start
-```
-
-> You can specify the --port and --host via flags
-
-5. **Access Verba**
-
-```
-Visit localhost:8000
-```
-
-6. (Optional) **Create .env file and add environment variables**
-
-# How to install Verba with Docker
-
-Docker is a set of platform-as-a-service products that use OS-level virtualization to deliver software in packages called containers. To get started with deploying Verba using Docker, follow the steps below. If you need more detailed instructions on Docker usage, check out the [Docker Curriculum](https://docker-curriculum.com/).
-
-You can use `docker pull semitechnologies/verba` to pull the latest Verba Docker Image. Please note, that by pulling directly from Docker Hub you're only able to install the vanilla Verba version that does not include packages e.g `HuggingFace`. If you want to use Docker and `HuggingFace` please follow the steps below.
-
-To build the image yourself, you can clone the Verba repository and run `docker build -t verba .` inside the Verba directory.
-
-0. **Clone the Verba repos**
-   Ensure you have Git installed on your system. Then, open a terminal or command prompt and run the following command to clone the Verba repository:
-
-```
-git clone https://github.com/weaviate/Verba.git
-```
-
-1. **Set necessary environment variables**
-   Make sure to set your required environment variables in the `.env` file. You can read more about how to set them up in the [API Keys Section](#api-keys)
-
-2. **Adjust the docker-compose file**
-   You can use the `docker-compose.yml` to add required environment variables under the `verba` service and can also adjust the Weaviate Docker settings to enable Authentification or change other settings of your database instance. You can read more about the Weaviate configuration in our [docker-compose documentation](https://weaviate.io/developers/weaviate/installation/docker-compose). You can also uncomment the `ollama` service to use Ollama within the same docker compose.
-
-> Please make sure to only add environment variables that you really need.
-
-2. **Deploy using Docker**
-   With Docker installed and the Verba repository cloned, navigate to the directory containing the Docker Compose file in your terminal or command prompt. Run the following command to start the Verba application in detached mode, which allows it to run in the background:
-
-```bash
-
-docker compose up -d
-
-```
-
-```bash
-
-docker compose --env-file goldenverba/.env up -d --build
-
-```
-
-This command will download the necessary Docker images, create containers, and start Verba.
-Remember, Docker must be installed on your system to use this method. For installation instructions and more details about Docker, visit the official Docker documentation.
-
-4. **Access Verba**
-
-- You can access your local Weaviate instance at `localhost:8080`
-
-- You can access the Verba frontend at `localhost:8000`
-
-If you want your Docker Instance to install a specific version of Verba you can edit the `Dockerfile` and change the installation line.
-
-```
-RUN pip install -e '.'
-```
-
-## Verba Walkthrough
-
-### Select your Deployment
-
-The first screen you'll see is the deployment screen. Here you can select between `Local`, `Docker`, `Weaviate Cloud`, or `Custom` deployment. The `Local` deployment is using Weaviate Embedded under the hood, which initializes a Weaviate instance behind the scenes. The `Docker` deployment is using a separate Weaviate instance that is running inside the same Docker network. The `Weaviate Cloud` deployment is using a Weaviate instance that is hosted on Weaviate Cloud Services (WCS). The `Custom` deployment allows you to specify your own Weaviate instance URL, PORT, and API key.
-
-You can skip this part by setting the `DEFAULT_DEPLOYMENT` environment variable to `Local`, `Docker`, `Weaviate`, or `Custom`.
-
-### Import Your Data
-
-First thing you need to do is to add your data. You can do this by clicking on `Import Data` and selecting either `Add Files`, `Add Directory`, or `Add URL` tab. Here you can add all your files that you want to ingest.
-You can then configure every file individually by selecting the file and clicking on `Overview` or `Configure` tab.
-![Demo of Verba](https://github.com/weaviate/Verba/blob/2.0.0/img/verba_data.png)
-
-### Query Your Data
-
-With Data imported, you can use the `Chat` page to ask any related questions. You will receive relevant chunks that are semantically relevant to your question and an answer generated by your choosen model. You can configure the RAG pipeline under the `Config` tab.
-
-![Demo of Verba](https://github.com/weaviate/Verba/blob/2.0.0/img/verba_rag.png)
-
-## Open Source Contribution
-
-Your contributions are always welcome! Feel free to contribute ideas, feedback, or create issues and bug reports if you find any! Before contributing, please read the [Contribution Guide](./docs/CONTRIBUTING.md). Visit our [Weaviate Community Forum](https://forum.weaviate.io/) if you need any help!
-
-### Project Architecture
-
-You can learn more about Verba's architecture and implementation in its [technical documentation](./docs/TECHNICAL.md) and [frontend documentation](./docs/FRONTEND.md). It's recommended to have a look at them before making any contributions.
-
-## Supplemental Documentation
-
-### Comprehensive Guides
-
-To help you understand and work with the Verba codebase, we've created detailed documentation:
-
-- **[Verba Codebase Guide](./docs/VERBA_CODEBASE_GUIDE.md)** - Deep dive into Verba's architecture, component system, and backend implementation. Learn how the RAG pipeline works, understand the VerbaManager orchestration, and explore the modular component system (Readers, Chunkers, Embedders, Retrievers, Generators).
-
-- **[Verba UI & Implementation Guide](./docs/VERBA_UI_AND_IMPLEMENTATION_GUIDE.md)** - Complete guide to Verba's frontend architecture, UI components, and implementation patterns. Covers the chat interface, document explorer, retrieval system, and how to extend the UI with custom features.
-
-### Implementation Documentation
-
-Detailed documentation for specific features and implementations:
-
-- **[Docker Configuration Changes](./docs/DOCKER_CONFIG_CHANGES.md)** - Documentation of Docker setup modifications and configuration changes for the resume features.
-
-- **[Work Log API Implementation](./docs/WORKLOG_API_IMPLEMENTATION.md)** - Technical details of the work log management API endpoints and data structures.
-
-- **[Metadata Filtering Implementation](./docs/METADATA_FILTERING_IMPLEMENTATION.md)** - Complete guide to the document metadata and tag filtering system implementation.
-
-- **[Skill Extraction on Document Ingestion](./docs/SKILL_EXTRACTION_ON_INGESTION.md)** - Comprehensive guide to the automatic skill extraction feature that runs as a post-processing hook during document ingestion. Covers the extraction process, skill categorization, proficiency scoring, and cleanup when documents are deleted.
-
-- **[Hybrid Search for Resume Generation](./docs/HYBRID_SEARCH.md)** - Complete guide to the hybrid search implementation that combines semantic similarity with keyword matching for optimal experience retrieval. Includes configuration parameters (alpha tuning, date filtering, recency boost), advanced ranking algorithm details, tuning scenarios, and best practices for generating tailored resumes.
-
-### Resume-Specific Features
-
-This fork extends Verba with resume generation and work log management capabilities:
-
-**New Features:**
-- **Work Log Management** - Chat-style interface for logging daily work activities with automatic skill extraction
-- **Automatic Skill Extraction** - Post-processing hook that automatically extracts and categorizes skills from all ingested documents (not just work logs)
-- **Skills Analysis** - Interactive visualization of extracted skills with proficiency scoring and categorization
-- **Resume Generation** - AI-powered resume generation tailored to specific job descriptions using your work history
-- **Resume History** - Track and manage all generated resumes with regeneration and export capabilities
-- **Configuration UI** - Comprehensive settings for skill extraction, resume generation, and proficiency calculation
-
-**New Components:**
-- `WorkLogManager` - Backend module for storing and managing work log entries
-- `SkillsExtractor` - LLM-powered skill extraction and categorization from work logs
-- `ResumeGenerator` - Hybrid search-based resume generation using job descriptions
+- `WorkLogManager` - Work log storage and management
+- `SkillsExtractor` - LLM-powered skill extraction and categorization
+- `ResumeGenerator` - Hybrid search-based resume generation
 - `ResumeTracker` - Resume history and metadata management
-- `ResumeConfigComponent` - Frontend configuration interface for resume features
 
-**API Endpoints:**
-- `/api/worklogs` - Create, read, update, and delete work log entries
-- `/api/skills` - Retrieve skills breakdown and perform on-demand extraction
-- `/api/resumes/generate` - Generate tailored resumes from job descriptions
-- `/api/resumes` - Manage resume history and export in multiple formats (PDF, DOCX, Markdown)
-- `/api/config/resume` - Save and load resume-specific configuration
+---
 
-### Documentation
+## 📚 Documentation
 
-**Getting Started:**
-- **[User Guide](./docs/USER_GUIDE.md)** - Complete guide to using work logs, skills analysis, and resume generation
-- **[Configuration Guide](./docs/CONFIGURATION_GUIDE.md)** - Detailed configuration for LLM providers, skill extraction, and proficiency scoring
-- **[API Reference](./docs/API_REFERENCE.md)** - Complete API documentation with request/response examples
+### Getting Started
 
-**Feature Guides:**
-- **[Skill Extraction Guide](./docs/SKILL_EXTRACTION_GUIDE.md)** - Understanding skill extraction, categorization, and proficiency scoring
-- **[Hybrid Search Guide](./docs/HYBRID_SEARCH.md)** - How hybrid search retrieves relevant experiences for resume generation
-- **[Troubleshooting Guide](./docs/TROUBLESHOOTING.md)** - Solutions to common issues
+- **[User Guide](./docs/USER_GUIDE.md)** - Complete guide to using all features
+- **[Configuration Guide](./docs/CONFIGURATION_GUIDE.md)** - LLM providers, settings, and optimization
+- **[Quick Start](#-quick-start)** - Get running in 5 minutes
 
-**Implementation Details:**
-- **[Work Log API Implementation](./docs/WORKLOG_API_IMPLEMENTATION.md)** - Technical details of work log management
-- **[Skill Extraction on Ingestion](./docs/SKILL_EXTRACTION_ON_INGESTION.md)** - Automatic skill extraction during document upload
-- **[Metadata Filtering](./docs/METADATA_FILTERING_IMPLEMENTATION.md)** - Document organization and filtering system
+### Feature Guides
+
+- **[Skill Extraction Guide](./docs/SKILL_EXTRACTION_GUIDE.md)** - Understanding skill extraction and proficiency
+- **[Hybrid Search Guide](./docs/HYBRID_SEARCH.md)** - How resume generation retrieves experiences
+- **[API Reference](./docs/API_REFERENCE.md)** - Complete API documentation
+
+### Implementation Details
+
+- **[Work Log API](./docs/WORKLOG_API_IMPLEMENTATION.md)** - Work log management system
+- **[Skill Extraction on Ingestion](./docs/SKILL_EXTRACTION_ON_INGESTION.md)** - Automatic extraction during upload
+- **[Metadata Filtering](./docs/METADATA_FILTERING_IMPLEMENTATION.md)** - Document organization
 - **[Docker Setup](./docs/DOCKER_SETUP.md)** - Complete Docker deployment guide
 
-For detailed implementation information, refer to the specification documents in `.kiro/specs/resume-rag-merger/`.
+### Verba Core Documentation
 
-## Known Issues
+- **[Verba Codebase Guide](./docs/VERBA_CODEBASE_GUIDE.md)** - Deep dive into Verba's architecture
+- **[Verba UI Guide](./docs/VERBA_UI_AND_IMPLEMENTATION_GUIDE.md)** - Frontend architecture
+- **[Technical Documentation](./docs/TECHNICAL.md)** - Core Verba technical details
 
-- **Weaviate Embeeded** currently not working on Windows yet
-  - Will be fixed in future versions, until then please use the Docker or WCS Deployment
+### Support
 
-## FAQ
+- **[Troubleshooting Guide](./docs/TROUBLESHOOTING.md)** - Solutions to common issues
+- **[FAQ](#-faq)** - Frequently asked questions
 
-- **Can I use pre-existing data from my Weaviate instance?**
+---
 
-  - No, unfortunatley not. Verba requires the data to be in a specific format to work. And as of now, this is only possible by importing data through the Verba UI.
+## 🔧 Configuration
 
-- **Is Verba Multi-Lingual?**
+### Core Verba Setup
 
-  - This depends on your choosen Embedding and Generation Model whether they support multi-lingual data.
+For detailed Verba setup instructions (deployment options, API keys, Weaviate configuration, etc.), see the **[official Verba README](https://github.com/weaviate/Verba/blob/main/README.md)**.
 
-- **Can I use my Ollama Server with the Verba Docker?**
+### Resume-Specific Configuration
 
-  - Yes, you can! Make sure the URL is set to: `OLLAMA_URL=http://host.docker.internal:11434`
-  - If you're running on Linux, you might need to get the IP Gateway of the Ollama server: `OLLAMA_URL="http://YOUR-IP-OF-OLLAMA:11434"`
+Additional environment variables for resume features:
 
-- **How to clear Weaviate Embedded Storage?**
+```bash
+# Skill Extraction
+ENABLE_SKILL_EXTRACTION=true
+SKILL_EXTRACTION_MODEL=gpt-4o-mini
+SKILL_EXTRACTION_PROVIDER=OpenAI
+AUTO_EXTRACT_ON_INGESTION=true
 
-  - You'll find the stored data here: `~/.local/share/weaviate`
+# Resume Generation
+RESUME_GENERATION_MODEL=gpt-4o
+RESUME_GENERATION_PROVIDER=OpenAI
+DEFAULT_RESUME_FORMAT=pdf
+MAX_CONVERSATION_HISTORY=10
 
-- **How can I specify the port?**
+# Proficiency Calculation
+PROFICIENCY_FREQUENCY_WEIGHT=0.6
+PROFICIENCY_RECENCY_WEIGHT=0.3
+PROFICIENCY_CONTEXT_WEIGHT=0.1
 
-  - You can use the port and host flag `verba start --port 9000 --host 0.0.0.0`
+# Hybrid Search
+HYBRID_SEARCH_ALPHA=0.5
+ENABLE_RECENCY_BOOST=true
+MAX_WORK_LOGS_PER_RESUME=50
+```
 
-- **Can multiple users use Verba at the same time? How about role based access?**
+See the [Configuration Guide](./docs/CONFIGURATION_GUIDE.md) for complete details.
 
-  - Verba is designed and optimized for single user usage only. There are no plans on supporting multiple users or role based access in the near future.
+---
 
-- **Does Verba offer a API endpoint to use externally?**
+## 🙏 Credits & Inspiration
 
-  - No, right now Verba does not offer any useful API endpoints to interact with the application. The current FastAPI setup is optimized for the internal communication between the frontend and backend. It is not recommended to use it as a API endpoint. There are plans to add user-friendly
+This project builds upon and merges capabilities from two excellent open-source projects:
 
-- **How to connect to your custom OpenAI Server?**
+- **[Verba (Weaviate)](https://github.com/weaviate/Verba)** - The foundational RAG framework providing document ingestion, semantic search, and LLM integration. Verba's modular architecture and production-ready components form the backbone of this system. For core RAG functionality, deployment options, and Weaviate configuration, refer to the [official Verba documentation](https://github.com/weaviate/Verba/blob/main/README.md).
 
-  - Set your custom OpenAI API Key and URL in the `.env` file, this will allow Verba to start up and retrieve the models from your custom OpenAI Server. `OPENAI_BASE_URL` is set to `https://api.openai.com/v1` by default.
-  - You can also set a different endpoint for your embeddings by configuring the `OPENAI_EMBED_API_KEY` and `OPENAI_EMBED_BASE_URL` environment variables and setting `OPENAI_CUSTOM_EMBED=true`. For more details, see [OpenAI Embeddings](#openai-embeddings).
+- **[Super-People (Weaviate)](https://github.com/prachi-b-modi/super-people)** - Inspired the resume generation and skills analysis features. The concept of using work logs for automated resume creation and skill tracking originated from this innovative project. For the original implementation of resume generation and skills extraction, see the [Super-People repository](https://github.com/prachi-b-modi/super-people).
 
-- **How to upload custom JSON files to Verba?**
-  - Right now Verba does not support custom JSON structure. Instead the whole JSON will simply be dumped into the content field of the Verba document. You can read more about the Verba JSON Structure in the Technical Documentation [here](./docs/TECHNICAL.md).
+We're grateful to both projects and their contributors for making their work available to the community. This project aims to combine the best of both worlds while adding new capabilities for professional development.
 
-### Resume-Specific FAQ
+---
 
-- **How accurate is the skill extraction?**
-  - Skill extraction accuracy depends on your LLM provider. GPT-4o and Claude Sonnet achieve 90%+ accuracy. You can review and correct extracted skills in the Skills Analysis dashboard.
+## ❔ FAQ
 
-- **Can I use this completely offline?**
-  - Yes! Use Ollama for local LLM inference. Set `OLLAMA_URL=http://localhost:11434` and choose Ollama models for skill extraction and resume generation. All data stays on your machine.
+### General Questions
 
-- **How does proficiency scoring work?**
-  - Proficiency is calculated based on three factors: frequency of use (60%), recency (30%), and depth of usage (10%). You can adjust these weights in the configuration. See the [Skill Extraction Guide](./docs/SKILL_EXTRACTION_GUIDE.md) for details.
+**Q: How is this different from Verba?**  
+A: This project extends Verba with specialized features for professional development: work log management, automatic skill extraction, proficiency tracking, and AI-powered resume generation tailored to job descriptions.
 
-- **Will my resume pass ATS (Applicant Tracking Systems)?**
-  - Yes! The system generates resumes in standard formats (PDF, DOCX) with proper structure and keywords from job descriptions. The hybrid search ensures relevant skills and experiences are included.
+**Q: Can I still use all of Verba's features?**  
+A: Yes! All Verba features (document import, RAG chat, vector visualization, etc.) are fully preserved. Resume features are added as additional tabs.
 
-- **How many work logs do I need before generating a resume?**
-  - You can generate a resume with as few as 5-10 work logs, but 20-30 entries provide better results. The system retrieves the most relevant experiences based on the job description.
+**Q: Do I need to know how Verba works?**  
+A: Not necessarily. The [User Guide](./docs/USER_GUIDE.md) covers everything. However, understanding Verba's basics helps with advanced configuration.
 
-- **Can I edit the generated resume?**
-  - Yes! Export as DOCX for full editing capability, or use the iterative refinement feature to ask the AI to make specific changes (e.g., "make the summary more concise").
+### Resume Features
 
-- **How much does it cost to run?**
-  - Using OpenAI: ~$0.01-0.05 per resume generation with GPT-4o-mini, ~$0.10-0.30 with GPT-4o. Using Ollama: completely free but requires local compute resources.
+**Q: How accurate is the skill extraction?**  
+A: Accuracy depends on your LLM provider. GPT-4o and Claude Sonnet achieve 90%+ accuracy. You can review and correct extracted skills in the Skills Analysis dashboard.
 
-- **Is my data private?**
-  - Yes! All data is stored locally in Weaviate. The only external calls are to your chosen LLM provider for skill extraction and resume generation. Use Ollama for complete privacy.
+**Q: Can I use this completely offline?**  
+A: Yes! Use Ollama for local LLM inference. Set `OLLAMA_URL=http://localhost:11434` and choose Ollama models. All data stays on your machine.
 
-- **Can I customize skill categories?**
-  - Yes! Edit `goldenverba/components/skills_extractor.py` to add custom categories. See the [Skill Extraction Guide](./docs/SKILL_EXTRACTION_GUIDE.md) for examples.
+**Q: How does proficiency scoring work?**  
+A: Proficiency is calculated based on frequency of use (60%), recency (30%), and depth of usage (10%). You can adjust these weights. See the [Skill Extraction Guide](./docs/SKILL_EXTRACTION_GUIDE.md).
 
-- **How do I backup my work logs and resumes?**
-  - For Docker: `docker cp verba-weaviate-1:/var/lib/weaviate ./backup`
-  - For local: Backup `~/.local/share/weaviate`
-  - You can also export work logs and resumes via the API
+**Q: Will my resume pass ATS (Applicant Tracking Systems)?**  
+A: Yes! The system generates resumes in standard formats with proper structure and keywords from job descriptions. Hybrid search ensures relevant skills are included.
 
-- **Can multiple people use the same instance?**
-  - The system supports multiple users via the `user_id` field, but there's no built-in authentication. For multi-user deployments, implement authentication at the reverse proxy level.
+**Q: How many work logs do I need before generating a resume?**  
+A: You can generate with 5-10 work logs, but 20-30 entries provide better results. The system retrieves the most relevant experiences based on the job description.
 
-- **What's the difference between this and a traditional resume builder?**
-  - Traditional builders require manual entry. This system automatically extracts skills from your work logs, uses AI to match your experience to job descriptions, and generates tailored resumes using RAG technology.
+**Q: Can I edit the generated resume?**  
+A: Yes! Export as DOCX for full editing, or use iterative refinement to ask the AI to make specific changes (e.g., "make the summary more concise").
 
-For more questions, see the [Troubleshooting Guide](./docs/TROUBLESHOOTING.md) or create a GitHub issue.
+### Privacy & Cost
+
+**Q: Is my data private?**  
+A: Yes! All data is stored locally in Weaviate. The only external calls are to your chosen LLM provider. Use Ollama for complete privacy.
+
+**Q: How much does it cost to run?**  
+A: Using OpenAI: ~$0.01-0.05 per resume with GPT-4o-mini, ~$0.10-0.30 with GPT-4o. Using Ollama: completely free but requires local compute resources.
+
+**Q: Can I backup my data?**  
+A: Yes! For Docker: `docker cp verba-weaviate-1:/var/lib/weaviate ./backup`. For local: backup `~/.local/share/weaviate`. You can also export via API.
+
+### Customization
+
+**Q: Can I customize skill categories?**  
+A: Yes! Edit `goldenverba/components/skills_extractor.py` to add custom categories. See the [Skill Extraction Guide](./docs/SKILL_EXTRACTION_GUIDE.md).
+
+**Q: Can multiple people use the same instance?**  
+A: The system supports multiple users via the `user_id` field, but there's no built-in authentication. For multi-user deployments, implement authentication at the reverse proxy level.
+
+### Troubleshooting
+
+**Q: Where can I get help?**  
+A: Check the [Troubleshooting Guide](./docs/TROUBLESHOOTING.md), search GitHub Issues, or create a new issue with details about your problem.
+
+**Q: What if I have Verba-specific questions?**  
+A: Refer to the [official Verba README](https://github.com/weaviate/Verba/blob/main/README.md) and [Verba documentation](https://github.com/weaviate/Verba), or ask in the [Weaviate Community Forum](https://forum.weaviate.io/).
+
+---
+
+## 🚩 Known Issues
+
+### Resume-Specific Issues
+
+- **Skill extraction may be slow with large documents** - Use faster models like GPT-4o-mini for extraction
+- **Resume generation requires sufficient work log data** - Minimum 5-10 entries recommended
+
+### Verba Core Issues
+
+For Verba-specific known issues, see the [official Verba README](https://github.com/weaviate/Verba/blob/main/README.md#known-issues).
+
+---
+
+## 💖 Contributing
+
+Contributions are welcome! Please:
+
+1. Check existing issues and documentation
+2. Create an issue to discuss major changes
+3. Follow the code style and conventions
+4. Add tests for new features
+5. Update documentation as needed
+
+See [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for detailed guidelines.
+
+For Verba core contributions, see the [Verba Contributing Guide](https://github.com/weaviate/Verba/blob/main/CONTRIBUTING.md).
+
+---
+
+## 📄 License
+
+This project maintains the same license as Verba. See [LICENSE](./LICENSE) for details.
+
+---
+
+## 🔗 Links
+
+### This Project
+- **[Project Documentation](./docs/README.md)** - Complete documentation index
+- **[User Guide](./docs/USER_GUIDE.md)** - Getting started guide
+- **[API Reference](./docs/API_REFERENCE.md)** - API documentation
+
+### Source Projects
+- **[Verba Repository](https://github.com/weaviate/Verba)** - Core RAG framework
+- **[Verba Documentation](https://github.com/weaviate/Verba/blob/main/README.md)** - Setup and configuration
+- **[Super-People Repository](https://github.com/prachi-b-modi/super-people)** - Original resume generation concept
+
+### Related Resources
+- **[Weaviate Documentation](https://weaviate.io/developers/weaviate)** - Vector database docs
+- **[Weaviate Community Forum](https://forum.weaviate.io/)** - Get help and share ideas
+
+---
+
+**Built with ❤️ on top of [Verba](https://github.com/weaviate/Verba) by [Weaviate](https://weaviate.io/) and inspired by [Super-People](https://github.com/prachi-b-modi/super-people)**
