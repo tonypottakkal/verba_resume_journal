@@ -6,13 +6,14 @@
 [![Powered by Weaviate](https://img.shields.io/static/v1?label=powered%20by&message=Weaviate%20%E2%9D%A4&color=green&style=flat-square)](https://weaviate.io/)
 [![Work in Progress](https://img.shields.io/badge/Status-Work%20in%20Progress-yellow)](https://github.com/your-repo/local_resume)
 
-> **⚠️ DISCLAIMER**: This project is a work in progress and is provided as open-source software for educational and personal use. While we strive for quality and reliability, this software is provided "as is" without warranty of any kind. Use at your own risk. Always review and verify AI-generated content, especially for professional applications like resumes. We recommend testing thoroughly in a development environment before using for critical career documents.
+> **⚠️ DISCLAIMER**: This project is a work in progress and is provided as open-source software for educational and personal use. While I strive for quality and reliability, this software is provided "as is" without warranty of any kind. Use at your own risk. Always review and verify AI-generated content, especially for professional applications like resumes. We recommend testing thoroughly in a development environment before using for critical career documents.
 
 ## Table of Contents
 
 - [Project Description](#project-description)
 - [🚀 Quick Start](#-quick-start)
 - [Resume-Specific Features](#resume-specific-features)
+- [📋 TODO & Testing Status](#-todo--testing-status)
 - [📚 Documentation](#-documentation)
 - [🔧 Configuration](#-configuration)
 - [🙏 Credits & Inspiration](#-credits--inspiration)
@@ -153,6 +154,37 @@ This project extends Verba with specialized resume generation and work log manag
 
 ---
 
+## 📋 TODO & Testing Status
+
+This project is functional but testing is still in progress. See [WHATS_NEXT.md](./WHATS_NEXT.md) for the complete list of remaining tasks.
+
+### ✅ Completed
+- Core backend modules (WorkLogManager, SkillsExtractor, ResumeGenerator, ResumeTracker)
+- All API endpoints for work logs, skills, and resumes
+- Frontend components (WorkLogChat, SkillsAnalysis, ResumeGenerator, ResumeHistory)
+- Resume export functionality (PDF, DOCX, Markdown)
+- Skill extraction on document ingestion
+- Hybrid search for resume generation
+- Docker configuration and deployment
+- Comprehensive documentation
+
+### 🧪 Testing In Progress
+- **Unit Tests** - Backend module tests (WorkLogManager, SkillsExtractor, ResumeGenerator, ResumeTracker)
+- **Component Tests** - Frontend component tests (WorkLogChat, SkillsAnalysis, ResumeGenerator, ResumeHistory)
+- **Integration Tests** - End-to-end workflow testing
+
+### 🚀 Future Enhancements
+- Multi-user support with authentication
+- Additional resume templates
+- Cover letter generation
+- Interview preparation features
+- Skill gap analysis
+- Career path recommendations
+
+**Want to help?** Check out [WHATS_NEXT.md](./WHATS_NEXT.md) for detailed tasks and [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for contribution guidelines.
+
+---
+
 ## 📚 Documentation
 
 ### Getting Started
@@ -233,7 +265,7 @@ This project builds upon and merges capabilities from two excellent open-source 
 
 - **[Super-People (Weaviate)](https://github.com/prachi-b-modi/super-people)** - Inspired the resume generation and skills analysis features. The concept of using work logs for automated resume creation and skill tracking originated from this innovative project. For the original implementation of resume generation and skills extraction, see the [Super-People repository](https://github.com/prachi-b-modi/super-people).
 
-We're grateful to both projects and their contributors for making their work available to the community. This project aims to combine the best of both worlds while adding new capabilities for professional development.
+I'm grateful to both projects and their contributors for making their work available to the community. This project aims to combine the best of both worlds while adding new capabilities for professional development. I was tired of stuggling to update my resume and market myself every time I need to find a new job. Prachi Modi inspired this effort and I wanted to improve the capabilities she demo'd while I learn more about Weaviate RAG + AI Agents. This is a tool I use, and it really is an attempt to make life easier when the times comes to find a new job. I hope it helps you as well. 
 
 ---
 
@@ -276,7 +308,7 @@ A: Yes! Export as DOCX for full editing, or use iterative refinement to ask the 
 A: Yes! All data is stored locally in Weaviate. The only external calls are to your chosen LLM provider. Use Ollama for complete privacy.
 
 **Q: How much does it cost to run?**  
-A: Using OpenAI: ~$0.01-0.05 per resume with GPT-4o-mini, ~$0.10-0.30 with GPT-4o. Using Ollama: completely free but requires local compute resources.
+A: Using OpenAI: ~$0.01-0.05 per resume with GPT-4o-mini, ~$0.10-0.30 with GPT-4o.(* please check OpenAI prices as they are subject to change *) Using Ollama: completely free but requires local compute resources.
 
 **Q: Can I backup my data?**  
 A: Yes! For Docker: `docker cp verba-weaviate-1:/var/lib/weaviate ./backup`. For local: backup `~/.local/share/weaviate`. You can also export via API.
