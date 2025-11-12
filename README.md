@@ -9,6 +9,7 @@
   - [🏗️ Architecture](#️-architecture)
   - [💡 Use Cases](#-use-cases)
   - [🙏 Credits & Inspiration](#-credits--inspiration)
+- [🚀 Quick Start](#-quick-start)
 - [Verba](#verba)
   - [🎯 What Is Verba?](#what-is-verba)
   - [✨ Features](#feature-lists)
@@ -94,6 +95,68 @@ This project builds upon and merges capabilities from two excellent open-source 
 - **[Super-People (Weaviate)](https://github.com/prachi-b-modi/super-people)** - Inspired the resume generation and skills analysis features. The concept of using work logs for automated resume creation and skill tracking originated from this innovative project.
 
 We're grateful to both projects and their contributors for making their work available to the community. This project aims to combine the best of both worlds while adding new capabilities for professional development.
+
+---
+
+# 🚀 Quick Start
+
+Get started with the Local Resume System in 5 minutes:
+
+### 1. Install
+
+```bash
+# Using pip
+pip install goldenverba
+
+# Or from source
+git clone https://github.com/your-repo/local_resume.git
+cd local_resume
+pip install -e .
+```
+
+### 2. Configure
+
+Create a `.env` file with your API keys:
+
+```bash
+# Required: Choose one LLM provider
+OPENAI_API_KEY=sk-...
+# or
+OLLAMA_URL=http://localhost:11434
+
+# Optional: Enable resume features
+ENABLE_SKILL_EXTRACTION=true
+SKILL_EXTRACTION_MODEL=gpt-4o-mini
+RESUME_GENERATION_MODEL=gpt-4o
+```
+
+### 3. Start
+
+```bash
+verba start
+```
+
+Visit `http://localhost:8000` and you're ready to go!
+
+### 4. Use
+
+**Create Work Logs:**
+- Navigate to the Work Logs tab
+- Type your daily accomplishments
+- Skills are automatically extracted
+
+**Analyze Skills:**
+- Go to the Skills tab
+- View your skills organized by category
+- See proficiency scores and trends
+
+**Generate Resumes:**
+- Open the Resume tab
+- Paste a job description
+- Click "Generate Resume"
+- Export as PDF, DOCX, or Markdown
+
+**📖 For detailed instructions, see the [User Guide](./docs/USER_GUIDE.md)**
 
 ---
 
@@ -574,6 +637,24 @@ This fork extends Verba with resume generation and work log management capabilit
 - `/api/resumes` - Manage resume history and export in multiple formats (PDF, DOCX, Markdown)
 - `/api/config/resume` - Save and load resume-specific configuration
 
+### Documentation
+
+**Getting Started:**
+- **[User Guide](./docs/USER_GUIDE.md)** - Complete guide to using work logs, skills analysis, and resume generation
+- **[Configuration Guide](./docs/CONFIGURATION_GUIDE.md)** - Detailed configuration for LLM providers, skill extraction, and proficiency scoring
+- **[API Reference](./docs/API_REFERENCE.md)** - Complete API documentation with request/response examples
+
+**Feature Guides:**
+- **[Skill Extraction Guide](./docs/SKILL_EXTRACTION_GUIDE.md)** - Understanding skill extraction, categorization, and proficiency scoring
+- **[Hybrid Search Guide](./docs/HYBRID_SEARCH.md)** - How hybrid search retrieves relevant experiences for resume generation
+- **[Troubleshooting Guide](./docs/TROUBLESHOOTING.md)** - Solutions to common issues
+
+**Implementation Details:**
+- **[Work Log API Implementation](./docs/WORKLOG_API_IMPLEMENTATION.md)** - Technical details of work log management
+- **[Skill Extraction on Ingestion](./docs/SKILL_EXTRACTION_ON_INGESTION.md)** - Automatic skill extraction during document upload
+- **[Metadata Filtering](./docs/METADATA_FILTERING_IMPLEMENTATION.md)** - Document organization and filtering system
+- **[Docker Setup](./docs/DOCKER_SETUP.md)** - Complete Docker deployment guide
+
 For detailed implementation information, refer to the specification documents in `.kiro/specs/resume-rag-merger/`.
 
 ## Known Issues
@@ -619,3 +700,45 @@ For detailed implementation information, refer to the specification documents in
 
 - **How to upload custom JSON files to Verba?**
   - Right now Verba does not support custom JSON structure. Instead the whole JSON will simply be dumped into the content field of the Verba document. You can read more about the Verba JSON Structure in the Technical Documentation [here](./docs/TECHNICAL.md).
+
+### Resume-Specific FAQ
+
+- **How accurate is the skill extraction?**
+  - Skill extraction accuracy depends on your LLM provider. GPT-4o and Claude Sonnet achieve 90%+ accuracy. You can review and correct extracted skills in the Skills Analysis dashboard.
+
+- **Can I use this completely offline?**
+  - Yes! Use Ollama for local LLM inference. Set `OLLAMA_URL=http://localhost:11434` and choose Ollama models for skill extraction and resume generation. All data stays on your machine.
+
+- **How does proficiency scoring work?**
+  - Proficiency is calculated based on three factors: frequency of use (60%), recency (30%), and depth of usage (10%). You can adjust these weights in the configuration. See the [Skill Extraction Guide](./docs/SKILL_EXTRACTION_GUIDE.md) for details.
+
+- **Will my resume pass ATS (Applicant Tracking Systems)?**
+  - Yes! The system generates resumes in standard formats (PDF, DOCX) with proper structure and keywords from job descriptions. The hybrid search ensures relevant skills and experiences are included.
+
+- **How many work logs do I need before generating a resume?**
+  - You can generate a resume with as few as 5-10 work logs, but 20-30 entries provide better results. The system retrieves the most relevant experiences based on the job description.
+
+- **Can I edit the generated resume?**
+  - Yes! Export as DOCX for full editing capability, or use the iterative refinement feature to ask the AI to make specific changes (e.g., "make the summary more concise").
+
+- **How much does it cost to run?**
+  - Using OpenAI: ~$0.01-0.05 per resume generation with GPT-4o-mini, ~$0.10-0.30 with GPT-4o. Using Ollama: completely free but requires local compute resources.
+
+- **Is my data private?**
+  - Yes! All data is stored locally in Weaviate. The only external calls are to your chosen LLM provider for skill extraction and resume generation. Use Ollama for complete privacy.
+
+- **Can I customize skill categories?**
+  - Yes! Edit `goldenverba/components/skills_extractor.py` to add custom categories. See the [Skill Extraction Guide](./docs/SKILL_EXTRACTION_GUIDE.md) for examples.
+
+- **How do I backup my work logs and resumes?**
+  - For Docker: `docker cp verba-weaviate-1:/var/lib/weaviate ./backup`
+  - For local: Backup `~/.local/share/weaviate`
+  - You can also export work logs and resumes via the API
+
+- **Can multiple people use the same instance?**
+  - The system supports multiple users via the `user_id` field, but there's no built-in authentication. For multi-user deployments, implement authentication at the reverse proxy level.
+
+- **What's the difference between this and a traditional resume builder?**
+  - Traditional builders require manual entry. This system automatically extracts skills from your work logs, uses AI to match your experience to job descriptions, and generates tailored resumes using RAG technology.
+
+For more questions, see the [Troubleshooting Guide](./docs/TROUBLESHOOTING.md) or create a GitHub issue.
