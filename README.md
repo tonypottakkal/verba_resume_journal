@@ -1,4 +1,6 @@
 # Local Resume System Project
+* this is a work in progress, 
+* please reference supplemental documentation, and next steps for current status
 
 ## Table of Contents
 
@@ -109,7 +111,7 @@ Get started with the Local Resume System in 5 minutes:
 pip install goldenverba
 
 # Or from source
-git clone https://github.com/your-repo/local_resume.git
+git clone https://github.com/tonypottakkal/verba_resume_journal.git
 cd local_resume
 pip install -e .
 ```
