@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs (will be generated during Docker build)
+goldenverba/server/frontend/out/
+frontend/out/
+frontend/.next/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Testing
+.pytest_cache/
+*.egg-info/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Data
+data/
+img/
+
+# Kiro
+.kiro/

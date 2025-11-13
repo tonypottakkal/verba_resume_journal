@@ -138,21 +138,19 @@ async def check_same_origin(request: Request, call_next):
 
 BASE_DIR = Path(__file__).resolve().parent
 
-# Serve the assets (JS, CSS, images, etc.)
-app.mount(
-    "/static/_next",
-    StaticFiles(directory=BASE_DIR / "frontend/out/_next"),
-    name="next-assets",
-)
-
-# Serve the main page and other static files
+# Serve all static files (including _next assets)
 app.mount("/static", StaticFiles(directory=BASE_DIR / "frontend/out"), name="app")
 
 
 @app.get("/")
 @app.head("/")
 async def serve_frontend():
-    return FileResponse(os.path.join(BASE_DIR, "frontend/out/index.html"))
+    response = FileResponse(os.path.join(BASE_DIR, "frontend/out/index.html"))
+    # Add cache-busting headers to force browser to reload
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 
 ### INITIAL ENDPOINTS
