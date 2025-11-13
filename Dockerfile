@@ -1,5 +1,11 @@
 FROM python:3.11
 WORKDIR /Verba
+
+# Install Node.js (required for Next.js frontend)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g npm@latest
+
 COPY . /Verba
 RUN pip install '.'
 RUN pip install pandas
