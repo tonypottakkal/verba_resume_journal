@@ -600,11 +600,19 @@ Skills (JSON array only):"""
             filters = []
             
             if start_date:
+                # Ensure timezone-aware datetime in RFC3339 format
+                if start_date.tzinfo is None:
+                    from datetime import timezone
+                    start_date = start_date.replace(tzinfo=timezone.utc)
                 filters.append(
                     Filter.by_property("last_used").greater_or_equal(start_date.isoformat())
                 )
             
             if end_date:
+                # Ensure timezone-aware datetime in RFC3339 format
+                if end_date.tzinfo is None:
+                    from datetime import timezone
+                    end_date = end_date.replace(tzinfo=timezone.utc)
                 filters.append(
                     Filter.by_property("last_used").less_or_equal(end_date.isoformat())
                 )

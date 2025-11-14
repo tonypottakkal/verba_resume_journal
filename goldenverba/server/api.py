@@ -108,10 +108,15 @@ async def check_same_origin(request: Request, call_next):
         return await call_next(request)
 
     origin = request.headers.get("origin")
-    if origin == str(request.base_url).rstrip("/") or (
-        origin
-        and origin.startswith("http://localhost:")
-        and request.base_url.hostname == "localhost"
+    
+    # Allow requests without Origin header (same-origin requests from browser)
+    # Allow requests with matching origin
+    # Allow localhost requests
+    if (
+        origin is None or
+        origin == str(request.base_url).rstrip("/") or
+        (origin and origin.startswith("http://localhost:") and request.base_url.hostname == "localhost") or
+        (origin and origin.startswith("http://127.0.0.1:"))
     ):
         return await call_next(request)
     else:
@@ -126,7 +131,6 @@ async def check_same_origin(request: Request, call_next):
                         "expected_origin": str(request.base_url),
                         "request_method": request.method,
                         "request_url": str(request.url),
-                        "request_headers": dict(request.headers),
                         "expected_header": "Origin header matching the server's base URL or localhost",
                     },
                 },
@@ -1042,12 +1046,12 @@ async def delete_suggestion(payload: DeleteSuggestionPayload):
 
 
 @app.post("/api/worklogs")
-async def create_worklog(payload: CreateWorkLogPayload):
+async def create_worklog(request: Request):
     """
     Create a new work log entry.
     
     Args:
-        payload: CreateWorkLogPayload containing work log content and metadata
+        request: Request containing work log content and optional metadata
         
     Returns:
         JSONResponse with created work log entry or error
@@ -1058,12 +1062,33 @@ async def create_worklog(payload: CreateWorkLogPayload):
             status_code=403,
             content={
                 "error": "Work log creation is disabled in Demo mode",
-                "worklog": None
+                "log": None
             }
         )
     
     try:
-        client = await client_manager.connect(payload.credentials)
+        # Parse request body
+        body = await request.json()
+        content = body.get("content", "")
+        user_id = body.get("user_id", "default_user")
+        extracted_skills = body.get("extracted_skills", [])
+        metadata = body.get("metadata", {})
+        credentials = body.get("credentials", {})
+        
+        if not content:
+            return JSONResponse(
+                status_code=422,
+                content={
+                    "error": "Content is required",
+                    "log": None
+                }
+            )
+        
+        # Get client
+        if credentials:
+            client = await client_manager.connect(Credentials(**credentials))
+        else:
+            client = await client_manager.get_client()
         
         # Create work log entry using WorkLogManager
         from goldenverba.components.worklog_manager import WorkLogManager
@@ -1071,10 +1096,10 @@ async def create_worklog(payload: CreateWorkLogPayload):
         
         entry = await worklog_manager.create_log_entry(
             client=client,
-            content=payload.content,
-            user_id=payload.user_id,
-            extracted_skills=payload.extracted_skills,
-            metadata=payload.metadata
+            content=content,
+            user_id=user_id,
+            extracted_skills=extracted_skills,
+            metadata=metadata
         )
         
         msg.good(f"Created work log entry: {entry.id}")
@@ -1083,7 +1108,7 @@ async def create_worklog(payload: CreateWorkLogPayload):
             status_code=201,
             content={
                 "error": "",
-                "worklog": {
+                "log": {
                     "id": entry.id,
                     "content": entry.content,
                     "timestamp": entry.timestamp.isoformat(),
@@ -1100,24 +1125,35 @@ async def create_worklog(payload: CreateWorkLogPayload):
             status_code=500,
             content={
                 "error": f"Failed to create work log entry: {str(e)}",
-                "worklog": None
+                "log": None
             }
         )
 
 
-@app.post("/api/get_worklogs")
-async def get_worklogs(payload: GetWorkLogsPayload):
+@app.get("/api/worklogs")
+async def get_worklogs(
+    user_id: str = None,
+    start_date: str = None,
+    end_date: str = None,
+    limit: int = 100,
+    offset: int = 0
+):
     """
     Retrieve work log entries with optional filtering.
     
     Args:
-        payload: GetWorkLogsPayload containing filter criteria and credentials
+        user_id: Optional user ID filter
+        start_date: Optional start date filter (ISO format)
+        end_date: Optional end date filter (ISO format)
+        limit: Maximum number of entries to return
+        offset: Number of entries to skip
         
     Returns:
         JSONResponse with list of work log entries or error
     """
     try:
-        client = await client_manager.connect(payload.credentials)
+        # Use default credentials for GET request
+        client = await client_manager.get_client()
         
         from goldenverba.components.worklog_manager import WorkLogManager
         from datetime import datetime
@@ -1125,25 +1161,25 @@ async def get_worklogs(payload: GetWorkLogsPayload):
         worklog_manager = WorkLogManager()
         
         # Parse dates if provided
-        start_dt = datetime.fromisoformat(payload.start_date) if payload.start_date else None
-        end_dt = datetime.fromisoformat(payload.end_date) if payload.end_date else None
+        start_dt = datetime.fromisoformat(start_date) if start_date else None
+        end_dt = datetime.fromisoformat(end_date) if end_date else None
         
         entries = await worklog_manager.get_log_entries(
             client=client,
-            user_id=payload.user_id,
+            user_id=user_id,
             start_date=start_dt,
             end_date=end_dt,
-            limit=payload.limit,
-            offset=payload.offset
+            limit=limit,
+            offset=offset
         )
         
         # Get total count
         total_count = await worklog_manager.count_log_entries(
             client=client,
-            user_id=payload.user_id
+            user_id=user_id
         )
         
-        worklogs = [
+        logs = [
             {
                 "id": entry.id,
                 "content": entry.content,
@@ -1155,16 +1191,16 @@ async def get_worklogs(payload: GetWorkLogsPayload):
             for entry in entries
         ]
         
-        msg.info(f"Retrieved {len(worklogs)} work log entries")
+        msg.info(f"Retrieved {len(logs)} work log entries")
         
         return JSONResponse(
             status_code=200,
             content={
                 "error": "",
-                "worklogs": worklogs,
+                "logs": logs,
                 "total_count": total_count,
-                "limit": payload.limit,
-                "offset": payload.offset
+                "limit": limit,
+                "offset": offset
             }
         )
         
@@ -1174,7 +1210,7 @@ async def get_worklogs(payload: GetWorkLogsPayload):
             status_code=500,
             content={
                 "error": f"Failed to retrieve work log entries: {str(e)}",
-                "worklogs": [],
+                "logs": [],
                 "total_count": 0
             }
         )
@@ -1394,34 +1430,57 @@ async def get_worklog_by_id(log_id: str, payload: GetWorkLogByIdPayload):
 
 
 @app.post("/api/skills")
-async def get_skills(payload: GetSkillsPayload):
+async def get_skills(request: Request):
     """
     Retrieve skills breakdown with optional filtering.
     
     Args:
-        payload: GetSkillsPayload containing filter criteria and credentials
+        request: Request containing optional filter criteria and credentials
         
     Returns:
         JSONResponse with skills breakdown or error
     """
     try:
-        client = await client_manager.connect(payload.credentials)
+        # Parse request body
+        body = await request.json() if request.headers.get("content-length") else {}
+        credentials = body.get("credentials", {})
+        start_date = body.get("start_date")
+        end_date = body.get("end_date")
+        category = body.get("category")
+        
+        # Get client
+        if credentials:
+            client = await client_manager.connect(Credentials(**credentials))
+        else:
+            client = await client_manager.get_client()
         
         from goldenverba.components.skills_extractor import SkillsExtractor
-        from datetime import datetime
+        from datetime import datetime, timezone
         
         skills_extractor = SkillsExtractor()
         
-        # Parse dates if provided
-        start_dt = datetime.fromisoformat(payload.start_date) if payload.start_date else None
-        end_dt = datetime.fromisoformat(payload.end_date) if payload.end_date else None
+        # Parse dates if provided and ensure they're timezone-aware
+        start_dt = None
+        end_dt = None
+        
+        if start_date:
+            start_dt = datetime.fromisoformat(start_date)
+            if start_dt.tzinfo is None:
+                # Add UTC timezone if naive datetime
+                start_dt = start_dt.replace(tzinfo=timezone.utc)
+        
+        if end_date:
+            end_dt = datetime.fromisoformat(end_date)
+            if end_dt.tzinfo is None:
+                # Add UTC timezone if naive datetime
+                end_dt = end_dt.replace(tzinfo=timezone.utc)
         
         # Generate skills report with filters
         report = await skills_extractor.aggregate_skills(
             client=client,
             start_date=start_dt,
             end_date=end_dt,
-            category_filter=payload.category
+            category_filter=category
         )
         
         msg.info(f"Retrieved skills breakdown with {report.total_skills} total skills")
@@ -1440,6 +1499,8 @@ async def get_skills(payload: GetSkillsPayload):
         
     except Exception as e:
         msg.fail(f"Failed to retrieve skills breakdown: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return JSONResponse(
             status_code=500,
             content={

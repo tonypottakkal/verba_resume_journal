@@ -32,13 +32,22 @@ class WorkLogEntry:
         self.timestamp = timestamp or datetime.now()
         self.user_id = user_id
         self.extracted_skills = extracted_skills or []
-        self.metadata = metadata or {}
+        # Ensure metadata always has at least one property for Weaviate object type
+        self.metadata = metadata if metadata else {"created_via": "api"}
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert WorkLogEntry to dictionary for Weaviate storage."""
+        # Ensure timestamp is in RFC3339 format with timezone
+        if self.timestamp.tzinfo is None:
+            # Add UTC timezone if not present
+            from datetime import timezone
+            timestamp_str = self.timestamp.replace(tzinfo=timezone.utc).isoformat()
+        else:
+            timestamp_str = self.timestamp.isoformat()
+        
         return {
             "content": self.content,
-            "timestamp": self.timestamp.isoformat(),
+            "timestamp": timestamp_str,
             "user_id": self.user_id,
             "extracted_skills": self.extracted_skills,
             "metadata": self.metadata
@@ -48,12 +57,22 @@ class WorkLogEntry:
     def from_weaviate_object(cls, weaviate_obj) -> "WorkLogEntry":
         """Create WorkLogEntry from Weaviate object."""
         props = weaviate_obj.properties
+        
+        # Parse timestamp - Weaviate returns datetime objects directly
+        timestamp_val = props.get("timestamp")
+        if isinstance(timestamp_val, datetime):
+            timestamp = timestamp_val
+        elif isinstance(timestamp_val, str):
+            timestamp = datetime.fromisoformat(timestamp_val.replace('Z', '+00:00'))
+        else:
+            timestamp = datetime.now()
+        
         return cls(
             content=props.get("content", ""),
             user_id=props.get("user_id", ""),
-            timestamp=datetime.fromisoformat(props.get("timestamp")) if props.get("timestamp") else datetime.now(),
+            timestamp=timestamp,
             extracted_skills=props.get("extracted_skills", []),
-            metadata=props.get("metadata", {}),
+            metadata=props.get("metadata", {"created_via": "api"}),
             entry_id=str(weaviate_obj.uuid)
         )
 

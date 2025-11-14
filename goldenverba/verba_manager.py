@@ -932,6 +932,15 @@ class ClientManager:
         for cred_hash, client in self.clients.items():
             msg.info(f"Client {cred_hash} connected at {client['timestamp']}")
 
+    async def get_client(self) -> WeaviateAsyncClient:
+        """Get or create a client with default credentials"""
+        default_credentials = Credentials(
+            url=os.environ.get("WEAVIATE_URL_VERBA", ""),
+            key=os.environ.get("WEAVIATE_API_KEY_VERBA", ""),
+            deployment="Local"
+        )
+        return await self.connect(default_credentials)
+
     async def connect(
         self, credentials: Credentials, port: str = "8080"
     ) -> WeaviateAsyncClient:

@@ -61,11 +61,6 @@ class SchemaExtensions:
                             data_type=DataType.TEXT_ARRAY,
                             description="Skills extracted from the work log content",
                         ),
-                        Property(
-                            name="metadata",
-                            data_type=DataType.OBJECT,
-                            description="Additional metadata for the work log entry",
-                        ),
                     ],
                     vectorizer_config=vectorizer_config or Configure.Vectorizer.none(),
                 )
@@ -199,11 +194,6 @@ class SchemaExtensions:
                             name="source_log_ids",
                             data_type=DataType.TEXT_ARRAY,
                             description="UUIDs of work log entries used to generate this resume",
-                        ),
-                        Property(
-                            name="metadata",
-                            data_type=DataType.OBJECT,
-                            description="Additional metadata for the resume record",
                         ),
                     ],
                     vectorizer_config=vectorizer_config or Configure.Vectorizer.none(),
