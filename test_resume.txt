@@ -1,0 +1,52 @@
+JOHN DOE
+Senior Software Engineer
+
+PROFESSIONAL SUMMARY
+Experienced software engineer with 8+ years of expertise in full-stack development, cloud architecture, and team leadership. Proficient in Python, JavaScript, and modern web frameworks. Strong background in building scalable applications and leading cross-functional teams.
+
+TECHNICAL SKILLS
+- Programming Languages: Python, JavaScript, TypeScript, Java, Go
+- Frontend: React, Next.js, Vue.js, HTML5, CSS3, TailwindCSS
+- Backend: Django, FastAPI, Node.js, Express, Spring Boot
+- Databases: PostgreSQL, MongoDB, Redis, Elasticsearch
+- Cloud & DevOps: AWS, Docker, Kubernetes, Terraform, Jenkins, GitHub Actions
+- Data Science: Machine Learning, TensorFlow, PyTorch, Pandas, NumPy
+- Tools: Git, VS Code, Jira, Postman, Figma
+
+PROFESSIONAL EXPERIENCE
+
+Senior Software Engineer | Tech Corp | 2020 - Present
+- Led development of microservices architecture using Python and FastAPI
+- Implemented CI/CD pipelines with Docker and Kubernetes
+- Mentored junior developers and conducted code reviews
+- Designed and deployed machine learning models for recommendation systems
+- Improved application performance by 40% through optimization
+
+Software Engineer | StartupXYZ | 2018 - 2020
+- Built responsive web applications using React and Node.js
+- Developed RESTful APIs with Django and PostgreSQL
+- Collaborated with product team using Agile methodologies
+- Implemented automated testing with Jest and Pytest
+
+Junior Developer | WebSolutions Inc | 2016 - 2018
+- Created dynamic websites using JavaScript and HTML/CSS
+- Maintained MySQL databases and wrote SQL queries
+- Participated in daily standups and sprint planning
+- Fixed bugs and implemented new features
+
+EDUCATION
+Bachelor of Science in Computer Science
+University of Technology | 2012 - 2016
+
+CERTIFICATIONS
+- AWS Certified Solutions Architect
+- Certified Kubernetes Administrator (CKA)
+- Scrum Master Certification
+
+SOFT SKILLS
+- Team Leadership
+- Problem Solving
+- Communication
+- Project Management
+- Agile/Scrum
+- Technical Writing

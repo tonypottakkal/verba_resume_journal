@@ -1010,14 +1010,14 @@ class VerbaManager:
         try:
             msg.info("Starting bulk skill extraction from existing documents")
             
-            # Get all documents (page is 1-indexed in Weaviate)
-            documents = await self.weaviate_manager.get_documents(
+            # Get all documents
+            documents, total_count = await self.weaviate_manager.get_documents(
                 client=client,
                 query="",
                 pageSize=limit,
-                page=1,  # Weaviate uses 1-indexed pages
+                page=0,  # 0-indexed
                 labels=[],
-                properties=["title", "text", "content"]
+                properties=["title"]
             )
             
             if not documents or len(documents) == 0:
@@ -1032,19 +1032,35 @@ class VerbaManager:
             processed_docs = 0
             failed_docs = []
             
-            for doc_data in documents[0]:  # documents returns (list, count)
+            for doc_data in documents:
                 try:
                     doc_uuid = doc_data.get("uuid", "")
                     doc_title = doc_data.get("title", "Unknown")
                     
-                    # Get document text
-                    doc_text = doc_data.get("text", "") or doc_data.get("content", "")
+                    msg.info(f"Processing document: {doc_title}")
+                    
+                    # Get chunks for this document to extract text
+                    chunks_data = await self.weaviate_manager.get_chunks(
+                        client=client,
+                        doc_uuid=doc_uuid,
+                        page=0,
+                        pageSize=50  # Get first 50 chunks
+                    )
+                    
+                    if not chunks_data or len(chunks_data) == 0:
+                        msg.info(f"Skipping {doc_title} - no chunks found")
+                        continue
+                    
+                    # Combine chunk texts
+                    doc_text = " ".join([
+                        chunk.get("text", "") 
+                        for chunk in chunks_data 
+                        if chunk.get("text")
+                    ])
                     
                     if not doc_text or len(doc_text) < 50:
                         msg.info(f"Skipping {doc_title} - insufficient text")
                         continue
-                    
-                    msg.info(f"Processing document: {doc_title}")
                     
                     # Extract skills
                     skills = await self.skills_extractor.extract_skills(
