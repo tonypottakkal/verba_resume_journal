@@ -931,15 +931,23 @@ class VerbaManager:
             if not os.getenv("ENABLE_SKILL_EXTRACTION", "true").lower() == "true":
                 return
             
-            # Get the full document text
-            document_text = document.text if hasattr(document, 'text') else ""
+            # Get the full document text from chunks
+            document_text = ""
             
-            if not document_text:
-                # Try to get text from chunks
-                document_text = " ".join([chunk.text for chunk in document.chunks if hasattr(chunk, 'text')])
+            if hasattr(document, 'text') and document.text:
+                document_text = document.text
+            elif hasattr(document, 'chunks') and document.chunks:
+                # Extract text from chunk objects
+                chunk_texts = []
+                for chunk in document.chunks:
+                    if hasattr(chunk, 'text') and chunk.text:
+                        chunk_texts.append(chunk.text)
+                    elif hasattr(chunk, 'content') and chunk.content:
+                        chunk_texts.append(chunk.content)
+                document_text = " ".join(chunk_texts)
             
             if not document_text or len(document_text) < 50:
-                msg.info(f"Skipping skill extraction for {document.title} - insufficient text")
+                msg.info(f"Skipping skill extraction for {document.title} - insufficient text (length: {len(document_text)})")
                 return
             
             msg.info(f"Extracting skills from document: {document.title}")
@@ -1010,12 +1018,12 @@ class VerbaManager:
         try:
             msg.info("Starting bulk skill extraction from existing documents")
             
-            # Get all documents
+            # Get all documents (page is 1-indexed in Weaviate)
             documents, total_count = await self.weaviate_manager.get_documents(
                 client=client,
                 query="",
                 pageSize=limit,
-                page=0,  # 0-indexed
+                page=1,  # 1-indexed!
                 labels=[],
                 properties=["title"]
             )
