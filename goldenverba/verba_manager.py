@@ -1019,14 +1019,20 @@ class VerbaManager:
             msg.info("Starting bulk skill extraction from existing documents")
             
             # Get all documents (page is 1-indexed in Weaviate)
-            documents, total_count = await self.weaviate_manager.get_documents(
-                client=client,
-                query="",
-                pageSize=limit,
-                page=1,  # 1-indexed!
-                labels=[],
-                properties=["title"]
-            )
+            try:
+                documents, total_count = await self.weaviate_manager.get_documents(
+                    client=client,
+                    query="",
+                    pageSize=limit,
+                    page=1,  # 1-indexed!
+                    labels=[],
+                    properties=["title"]  # uuid is added automatically, not a schema property
+                )
+            except Exception as e:
+                msg.fail(f"Failed to get documents: {str(e)}")
+                import traceback
+                traceback.print_exc()
+                raise
             
             if not documents or len(documents) == 0:
                 return {

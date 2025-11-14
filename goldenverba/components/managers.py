@@ -618,9 +618,10 @@ class WeaviateManager:
 
             return [
                 {
-                    "title": doc.properties["title"],
+                    "title": doc.properties.get("title", ""),
                     "uuid": str(doc.uuid),
-                    "labels": doc.properties["labels"],
+                    "labels": doc.properties.get("labels", []),
+                    **{k: v for k, v in doc.properties.items() if k not in ["title", "labels"]}
                 }
                 for doc in response.objects
             ], total_count
