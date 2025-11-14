@@ -1010,12 +1010,12 @@ class VerbaManager:
         try:
             msg.info("Starting bulk skill extraction from existing documents")
             
-            # Get all documents
+            # Get all documents (page is 1-indexed in Weaviate)
             documents = await self.weaviate_manager.get_documents(
                 client=client,
                 query="",
                 pageSize=limit,
-                page=0,
+                page=1,  # Weaviate uses 1-indexed pages
                 labels=[],
                 properties=["title", "text", "content"]
             )
