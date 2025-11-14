@@ -124,6 +124,49 @@ const SkillsAnalysis: React.FC<SkillsAnalysisProps> = ({
     setTimeout(() => fetchSkills(), 100);
   };
 
+  const extractSkillsFromDocuments = async () => {
+    setIsLoading(true);
+    try {
+      addStatusMessage("Starting skill extraction from documents...", "INFO");
+      const host = await detectHost();
+      const response = await fetch(`${host}/api/skills/extract-from-documents`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          credentials: credentials,
+          limit: 100,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          addStatusMessage(
+            `Successfully extracted ${data.skills_extracted} skills from ${data.documents_processed} documents`,
+            "SUCCESS"
+          );
+          // Refresh skills data
+          setTimeout(() => fetchSkills(), 1000);
+        } else {
+          addStatusMessage(data.message || "Skill extraction failed", "ERROR");
+        }
+      } else {
+        const errorData = await response.json();
+        addStatusMessage(
+          errorData.error || "Failed to extract skills from documents",
+          "ERROR"
+        );
+      }
+    } catch (error) {
+      console.error("Error extracting skills:", error);
+      addStatusMessage("Error extracting skills from documents", "ERROR");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const exportSkillsData = (format: "json" | "csv") => {
     if (!skillsData) return;
 
@@ -459,8 +502,17 @@ const SkillsAnalysis: React.FC<SkillsAnalysisProps> = ({
           </button>
         </div>
 
-        {/* Export Buttons */}
+        {/* Action Buttons */}
         <div className="flex gap-2">
+          <button
+            className="btn btn-sm bg-warning-verba hover:bg-warning-verba/80 text-text-verba border-none"
+            onClick={extractSkillsFromDocuments}
+            disabled={isLoading}
+            title="Extract skills from all uploaded documents"
+          >
+            <FaChartBar className="mr-2" />
+            Extract Skills from Documents
+          </button>
           <button
             className="btn btn-sm bg-secondary-verba hover:bg-secondary-verba/80 text-text-verba border-none"
             onClick={() => exportSkillsData("json")}
