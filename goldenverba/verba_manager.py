@@ -909,6 +909,193 @@ class VerbaManager:
         ):
             full_text += result["message"]
             yield result
+    
+    async def _extract_skills_from_document(
+        self,
+        client: WeaviateAsyncClient,
+        document: Document,
+        fileConfig: FileConfig,
+        logger: LoggerManager
+    ):
+        """
+        Extract skills from a document after it has been ingested.
+        
+        Args:
+            client: Weaviate async client
+            document: The ingested document
+            fileConfig: File configuration containing RAG settings
+            logger: Logger for status updates
+        """
+        try:
+            # Check if skill extraction is enabled
+            if not os.getenv("ENABLE_SKILL_EXTRACTION", "true").lower() == "true":
+                return
+            
+            # Get the full document text
+            document_text = document.text if hasattr(document, 'text') else ""
+            
+            if not document_text:
+                # Try to get text from chunks
+                document_text = " ".join([chunk.text for chunk in document.chunks if hasattr(chunk, 'text')])
+            
+            if not document_text or len(document_text) < 50:
+                msg.info(f"Skipping skill extraction for {document.title} - insufficient text")
+                return
+            
+            msg.info(f"Extracting skills from document: {document.title}")
+            
+            # Extract skills using the SkillsExtractor
+            generator_config = fileConfig.rag_config.get("Generator", {})
+            
+            skills = await self.skills_extractor.extract_skills(
+                client=client,
+                text=document_text[:5000],  # Limit to first 5000 chars to avoid token limits
+                generator_config=generator_config,
+                use_cache=True
+            )
+            
+            if not skills:
+                msg.info(f"No skills extracted from {document.title}")
+                return
+            
+            # Categorize the extracted skills
+            categorized_skills = self.skills_extractor.categorize_skills(skills)
+            
+            # Store each skill in the database
+            stored_count = 0
+            for category, skill_names in categorized_skills.items():
+                for skill_name in skill_names:
+                    try:
+                        await self.skills_extractor.store_or_update_skill(
+                            client=client,
+                            skill_name=skill_name,
+                            category=category,
+                            source_document_id=str(document.uuid) if hasattr(document, 'uuid') else document.title
+                        )
+                        stored_count += 1
+                    except Exception as e:
+                        msg.warn(f"Failed to store skill {skill_name}: {str(e)}")
+            
+            msg.good(f"Extracted and stored {stored_count} skills from {document.title}")
+            
+            await logger.send_report(
+                fileConfig.fileID,
+                status=FileStatus.INGESTING,
+                message=f"Extracted {stored_count} skills from {document.title}",
+                took=0,
+            )
+            
+        except Exception as e:
+            msg.warn(f"Skill extraction failed for {document.title}: {str(e)}")
+            # Don't fail the entire import if skill extraction fails
+            pass
+    
+    async def extract_skills_from_all_documents(
+        self,
+        client: WeaviateAsyncClient,
+        generator_config: dict,
+        limit: int = 100
+    ) -> dict:
+        """
+        Extract skills from all existing documents in the database.
+        
+        Args:
+            client: Weaviate async client
+            generator_config: Configuration for the LLM generator
+            limit: Maximum number of documents to process
+            
+        Returns:
+            dict: Summary of extraction results
+        """
+        try:
+            msg.info("Starting bulk skill extraction from existing documents")
+            
+            # Get all documents
+            documents = await self.weaviate_manager.get_documents(
+                client=client,
+                query="",
+                pageSize=limit,
+                page=0,
+                labels=[],
+                properties=["title", "text", "content"]
+            )
+            
+            if not documents or len(documents) == 0:
+                return {
+                    "success": True,
+                    "documents_processed": 0,
+                    "skills_extracted": 0,
+                    "message": "No documents found"
+                }
+            
+            total_skills = 0
+            processed_docs = 0
+            failed_docs = []
+            
+            for doc_data in documents[0]:  # documents returns (list, count)
+                try:
+                    doc_uuid = doc_data.get("uuid", "")
+                    doc_title = doc_data.get("title", "Unknown")
+                    
+                    # Get document text
+                    doc_text = doc_data.get("text", "") or doc_data.get("content", "")
+                    
+                    if not doc_text or len(doc_text) < 50:
+                        msg.info(f"Skipping {doc_title} - insufficient text")
+                        continue
+                    
+                    msg.info(f"Processing document: {doc_title}")
+                    
+                    # Extract skills
+                    skills = await self.skills_extractor.extract_skills(
+                        client=client,
+                        text=doc_text[:5000],  # Limit to avoid token limits
+                        generator_config=generator_config,
+                        use_cache=True
+                    )
+                    
+                    if skills:
+                        # Categorize and store skills
+                        categorized_skills = self.skills_extractor.categorize_skills(skills)
+                        
+                        for category, skill_names in categorized_skills.items():
+                            for skill_name in skill_names:
+                                try:
+                                    await self.skills_extractor.store_or_update_skill(
+                                        client=client,
+                                        skill_name=skill_name,
+                                        category=category,
+                                        source_document_id=doc_uuid
+                                    )
+                                    total_skills += 1
+                                except Exception as e:
+                                    msg.warn(f"Failed to store skill {skill_name}: {str(e)}")
+                    
+                    processed_docs += 1
+                    
+                except Exception as e:
+                    msg.warn(f"Failed to process document {doc_title}: {str(e)}")
+                    failed_docs.append(doc_title)
+            
+            result = {
+                "success": True,
+                "documents_processed": processed_docs,
+                "skills_extracted": total_skills,
+                "failed_documents": failed_docs,
+                "message": f"Successfully extracted {total_skills} skills from {processed_docs} documents"
+            }
+            
+            msg.good(f"Bulk extraction complete: {total_skills} skills from {processed_docs} documents")
+            return result
+            
+        except Exception as e:
+            msg.fail(f"Bulk skill extraction failed: {str(e)}")
+            return {
+                "success": False,
+                "documents_processed": 0,
+                "skills_extracted": 0,
+                "message": f"Extraction failed: {str(e)}"
+            }
 
 
 class ClientManager:

@@ -1632,6 +1632,87 @@ async def extract_skills(payload: ExtractSkillsPayload):
 
 
 
+@app.post("/api/skills/extract-from-documents")
+async def extract_skills_from_documents(request: Request):
+    """
+    Extract skills from all existing documents in the database.
+    
+    This is a utility endpoint to process documents that were uploaded
+    before skill extraction was implemented.
+    
+    Args:
+        request: Request containing optional credentials and limit
+        
+    Returns:
+        JSONResponse with extraction results or error
+    """
+    if production == "Demo":
+        msg.warn("Can't extract skills when in Production Mode")
+        return JSONResponse(
+            status_code=403,
+            content={
+                "error": "Skill extraction is disabled in Demo mode",
+                "success": False
+            }
+        )
+    
+    try:
+        # Parse request body
+        body = await request.json() if request.headers.get("content-length") else {}
+        credentials = body.get("credentials", {})
+        limit = body.get("limit", 100)
+        
+        # Get client
+        if credentials:
+            client = await client_manager.connect(Credentials(**credentials))
+        else:
+            client = await client_manager.get_client()
+        
+        # Get RAG config for generator settings
+        rag_config = await manager.load_rag_config(client)
+        generator_config = rag_config.get("Generator", {})
+        
+        msg.info(f"Starting bulk skill extraction from up to {limit} documents")
+        
+        # Extract skills from all documents
+        result = await manager.extract_skills_from_all_documents(
+            client=client,
+            generator_config=generator_config,
+            limit=limit
+        )
+        
+        if result["success"]:
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "error": "",
+                    **result
+                }
+            )
+        else:
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "error": result.get("message", "Extraction failed"),
+                    **result
+                }
+            )
+        
+    except Exception as e:
+        msg.fail(f"Failed to extract skills from documents: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": f"Failed to extract skills from documents: {str(e)}",
+                "success": False,
+                "documents_processed": 0,
+                "skills_extracted": 0
+            }
+        )
+
+
 ### RESUME GENERATION AND TRACKING ENDPOINTS
 
 
