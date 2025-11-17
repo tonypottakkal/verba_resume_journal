@@ -1017,6 +1017,7 @@ class VerbaManager:
         """
         try:
             msg.info("Starting bulk skill extraction from existing documents")
+            msg.info(f"Generator config: {generator_config}")
             
             # Get all documents (page is 1-indexed in Weaviate)
             try:
@@ -1056,8 +1057,8 @@ class VerbaManager:
                     # Get chunks for this document to extract text
                     chunks_data = await self.weaviate_manager.get_chunks(
                         client=client,
-                        doc_uuid=doc_uuid,
-                        page=0,
+                        uuid=doc_uuid,
+                        page=1,  # 1-indexed
                         pageSize=50  # Get first 50 chunks
                     )
                     
@@ -1065,15 +1066,17 @@ class VerbaManager:
                         msg.info(f"Skipping {doc_title} - no chunks found")
                         continue
                     
-                    # Combine chunk texts
+                    msg.info(f"Found {len(chunks_data)} chunks for {doc_title}")
+                    
+                    # Combine chunk texts (chunks use 'content' field, not 'text')
                     doc_text = " ".join([
-                        chunk.get("text", "") 
+                        chunk.get("content", "") 
                         for chunk in chunks_data 
-                        if chunk.get("text")
+                        if chunk.get("content")
                     ])
                     
                     if not doc_text or len(doc_text) < 50:
-                        msg.info(f"Skipping {doc_title} - insufficient text")
+                        msg.info(f"Skipping {doc_title} - insufficient text (length: {len(doc_text)})")
                         continue
                     
                     # Extract skills

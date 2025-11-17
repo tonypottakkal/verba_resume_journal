@@ -343,10 +343,20 @@ Skills (JSON array only):"""
             List[str]: Extracted skills
         """
         try:
-            # Import generator dynamically based on config
-            from goldenverba.components.generation.OpenAIGenerator import OpenAIGenerator
+            # Get the selected generator from config
+            selected_generator = generator_config.get("selected", "Ollama")
             
-            generator = OpenAIGenerator()
+            # Import generator dynamically based on config
+            if selected_generator == "OpenAI":
+                from goldenverba.components.generation.OpenAIGenerator import OpenAIGenerator
+                generator = OpenAIGenerator()
+            elif selected_generator == "Ollama":
+                from goldenverba.components.generation.OllamaGenerator import OllamaGenerator
+                generator = OllamaGenerator()
+            else:
+                msg.warn(f"Unknown generator: {selected_generator}, defaulting to Ollama")
+                from goldenverba.components.generation.OllamaGenerator import OllamaGenerator
+                generator = OllamaGenerator()
             
             # Collect streaming response
             full_response = ""
