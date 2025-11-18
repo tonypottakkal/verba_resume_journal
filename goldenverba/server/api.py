@@ -1754,12 +1754,35 @@ async def generate_resume(payload: GenerateResumePayload):
         
         # Get RAG config for generator and embedder settings
         rag_config = await manager.load_rag_config(client)
-        generator_config = rag_config.get("Generator", {})
-        embedder_config = rag_config.get("Embedder", {})
+        generator_full_config = rag_config.get("Generator", {})
+        embedder_full_config = rag_config.get("Embedder", {})
+        
+        # Get selected generator and embedder names
+        selected_generator = generator_full_config.get("selected", "Ollama")
+        selected_embedder = embedder_full_config.get("selected", "OllamaEmbedder")
         
         # Get generator and embedder instances
-        generator = manager.generator_manager.get_generator()
-        embedder = manager.embedder_manager.get_embedder()
+        generator = manager.generator_manager.get_generator(selected_generator)
+        embedder = manager.embedder_manager.get_embedder(selected_embedder)
+        
+        # Extract component-specific configs and convert to InputConfig objects
+        from goldenverba.components.types import InputConfig
+        
+        raw_generator_config = generator_full_config.get("components", {}).get(selected_generator, {}).get("config", {})
+        generator_config = {}
+        for key, value in raw_generator_config.items():
+            if isinstance(value, dict) and "value" in value:
+                generator_config[key] = InputConfig(**value)
+            else:
+                generator_config[key] = value
+        
+        raw_embedder_config = embedder_full_config.get("components", {}).get(selected_embedder, {}).get("config", {})
+        embedder_config = {}
+        for key, value in raw_embedder_config.items():
+            if isinstance(value, dict) and "value" in value:
+                embedder_config[key] = InputConfig(**value)
+            else:
+                embedder_config[key] = value
         
         msg.info(f"Generating resume for role: {payload.target_role or 'unspecified'}")
         
@@ -2059,12 +2082,35 @@ async def regenerate_resume(resume_id: str, payload: RegenerateResumePayload):
         
         # Get RAG config for generator and embedder settings
         rag_config = await manager.load_rag_config(client)
-        generator_config = rag_config.get("Generator", {})
-        embedder_config = rag_config.get("Embedder", {})
+        generator_full_config = rag_config.get("Generator", {})
+        embedder_full_config = rag_config.get("Embedder", {})
+        
+        # Get selected generator and embedder names
+        selected_generator = generator_full_config.get("selected", "Ollama")
+        selected_embedder = embedder_full_config.get("selected", "OllamaEmbedder")
         
         # Get generator and embedder instances
-        generator = manager.generator_manager.get_generator()
-        embedder = manager.embedder_manager.get_embedder()
+        generator = manager.generator_manager.get_generator(selected_generator)
+        embedder = manager.embedder_manager.get_embedder(selected_embedder)
+        
+        # Extract component-specific configs and convert to InputConfig objects
+        from goldenverba.components.types import InputConfig
+        
+        raw_generator_config = generator_full_config.get("components", {}).get(selected_generator, {}).get("config", {})
+        generator_config = {}
+        for key, value in raw_generator_config.items():
+            if isinstance(value, dict) and "value" in value:
+                generator_config[key] = InputConfig(**value)
+            else:
+                generator_config[key] = value
+        
+        raw_embedder_config = embedder_full_config.get("components", {}).get(selected_embedder, {}).get("config", {})
+        embedder_config = {}
+        for key, value in raw_embedder_config.items():
+            if isinstance(value, dict) and "value" in value:
+                embedder_config[key] = InputConfig(**value)
+            else:
+                embedder_config[key] = value
         
         msg.info(f"Regenerating resume: {resume_id}")
         

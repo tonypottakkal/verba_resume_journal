@@ -1295,6 +1295,30 @@ class EmbeddingManager:
             embedder.name: embedder for embedder in embedders
         }
 
+    def get_embedder(self, embedder_name: str = None) -> Embedding:
+        """
+        Get an embedder instance by name.
+        
+        Args:
+            embedder_name: Name of the embedder to retrieve. If None, returns the first available embedder.
+            
+        Returns:
+            Embedding: The requested embedder instance
+            
+        Raises:
+            Exception: If the embedder is not found
+        """
+        if embedder_name is None:
+            # Return first available embedder
+            if not self.embedders:
+                raise Exception("No embedders available")
+            return next(iter(self.embedders.values()))
+        
+        if embedder_name not in self.embedders:
+            raise Exception(f"Embedder {embedder_name} not found")
+        
+        return self.embedders[embedder_name]
+
     async def vectorize(
         self,
         embedder: str,
@@ -1455,6 +1479,30 @@ class GeneratorManager:
         self.generators: dict[str, Generator] = {
             generator.name: generator for generator in generators
         }
+
+    def get_generator(self, generator_name: str = None) -> Generator:
+        """
+        Get a generator instance by name.
+        
+        Args:
+            generator_name: Name of the generator to retrieve. If None, returns the first available generator.
+            
+        Returns:
+            Generator: The requested generator instance
+            
+        Raises:
+            Exception: If the generator is not found
+        """
+        if generator_name is None:
+            # Return first available generator
+            if not self.generators:
+                raise Exception("No generators available")
+            return next(iter(self.generators.values()))
+        
+        if generator_name not in self.generators:
+            raise Exception(f"Generator {generator_name} not found")
+        
+        return self.generators[generator_name]
 
     async def generate_stream(self, rag_config, query, context, conversation):
         """Generate a stream of response dicts based on a list of queries and list of contexts, and includes conversational context
