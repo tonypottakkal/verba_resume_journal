@@ -1035,6 +1035,8 @@ class VerbaManager:
                 traceback.print_exc()
                 raise
             
+            msg.info(f"Retrieved {len(documents)} documents (total: {total_count})")
+            
             if not documents or len(documents) == 0:
                 return {
                     "success": True,

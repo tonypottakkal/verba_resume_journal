@@ -78,26 +78,42 @@ class Skill:
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert Skill to dictionary for Weaviate storage."""
+        # Ensure datetime has timezone info for Weaviate RFC3339 format
+        from datetime import timezone
+        last_used_aware = self.last_used.replace(tzinfo=timezone.utc) if self.last_used.tzinfo is None else self.last_used
+        
         return {
             "name": self.name,
             "category": self.category,
             "proficiency_score": self.proficiency_score,
             "occurrence_count": self.occurrence_count,
             "source_documents": self.source_documents,
-            "last_used": self.last_used.isoformat()
+            "last_used": last_used_aware.isoformat()
         }
     
     @classmethod
     def from_weaviate_object(cls, weaviate_obj) -> "Skill":
         """Create Skill from Weaviate object."""
         props = weaviate_obj.properties
+        
+        # Handle last_used - Weaviate returns it as datetime object, not string
+        last_used_value = props.get("last_used")
+        if last_used_value:
+            if isinstance(last_used_value, str):
+                last_used = datetime.fromisoformat(last_used_value)
+            else:
+                # Already a datetime object
+                last_used = last_used_value
+        else:
+            last_used = datetime.now()
+        
         return cls(
             name=props.get("name", ""),
             category=props.get("category", ""),
             proficiency_score=props.get("proficiency_score", 0.0),
             occurrence_count=props.get("occurrence_count", 1),
             source_documents=props.get("source_documents", []),
-            last_used=datetime.fromisoformat(props.get("last_used")) if props.get("last_used") else datetime.now(),
+            last_used=last_used,
             skill_id=str(weaviate_obj.uuid)
         )
 
@@ -358,10 +374,26 @@ Skills (JSON array only):"""
                 from goldenverba.components.generation.OllamaGenerator import OllamaGenerator
                 generator = OllamaGenerator()
             
+            # Get the component-specific config
+            component_config = generator_config.get("components", {}).get(selected_generator, {})
+            # Extract the actual config dict with Model, System Message, etc.
+            raw_config = component_config.get("config", {})
+            
+            # Convert raw config to InputConfig-like objects for generator compatibility
+            # The generator expects config items to have .value attribute
+            from goldenverba.components.types import InputConfig
+            actual_config = {}
+            for key, value in raw_config.items():
+                if isinstance(value, dict) and "value" in value:
+                    # Create InputConfig object from dict
+                    actual_config[key] = InputConfig(**value)
+                else:
+                    actual_config[key] = value
+            
             # Collect streaming response
             full_response = ""
             async for chunk in generator.generate_stream(
-                config=generator_config,
+                config=actual_config,
                 query=prompt,
                 context="",
                 conversation=[]
