@@ -40,28 +40,44 @@ class ResumeRecord:
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert ResumeRecord to dictionary for Weaviate storage."""
+        # Ensure datetime has timezone info for Weaviate RFC3339 format
+        from datetime import timezone
+        generated_at_aware = self.generated_at.replace(tzinfo=timezone.utc) if self.generated_at.tzinfo is None else self.generated_at
+        
         return {
             "resume_content": self.resume_content,
             "job_description": self.job_description,
             "target_role": self.target_role,
-            "generated_at": self.generated_at.isoformat(),
+            "generated_at": generated_at_aware.isoformat(),
             "format": self.format,
             "source_log_ids": self.source_log_ids,
-            "metadata": self.metadata
+            # Note: metadata is not persisted to Weaviate as it's not in the schema
         }
     
     @classmethod
     def from_weaviate_object(cls, weaviate_obj) -> "ResumeRecord":
         """Create ResumeRecord from Weaviate object."""
         props = weaviate_obj.properties
+        
+        # Handle generated_at - Weaviate returns it as datetime object, not string
+        generated_at_value = props.get("generated_at")
+        if generated_at_value:
+            if isinstance(generated_at_value, str):
+                generated_at = datetime.fromisoformat(generated_at_value)
+            else:
+                # Already a datetime object
+                generated_at = generated_at_value
+        else:
+            generated_at = datetime.now()
+        
         return cls(
             resume_content=props.get("resume_content", ""),
             job_description=props.get("job_description", ""),
             target_role=props.get("target_role", ""),
-            generated_at=datetime.fromisoformat(props.get("generated_at")) if props.get("generated_at") else datetime.now(),
+            generated_at=generated_at,
             format=props.get("format", "markdown"),
             source_log_ids=props.get("source_log_ids", []),
-            metadata=props.get("metadata", {}),
+            metadata={},  # metadata is not persisted
             record_id=str(weaviate_obj.uuid)
         )
 

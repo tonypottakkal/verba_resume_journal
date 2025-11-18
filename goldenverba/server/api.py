@@ -1769,12 +1769,14 @@ async def generate_resume(payload: GenerateResumePayload):
         from goldenverba.components.types import InputConfig
         
         raw_generator_config = generator_full_config.get("components", {}).get(selected_generator, {}).get("config", {})
+        msg.info(f"Raw generator config keys: {list(raw_generator_config.keys())}")
         generator_config = {}
         for key, value in raw_generator_config.items():
             if isinstance(value, dict) and "value" in value:
                 generator_config[key] = InputConfig(**value)
             else:
                 generator_config[key] = value
+        msg.info(f"Processed generator config keys: {list(generator_config.keys())}")
         
         raw_embedder_config = embedder_full_config.get("components", {}).get(selected_embedder, {}).get("config", {})
         embedder_config = {}
