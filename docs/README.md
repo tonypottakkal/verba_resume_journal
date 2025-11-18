@@ -1,201 +1,167 @@
 # Documentation Index
 
-Complete documentation for the Local Resume System.
+Complete documentation for the Local Resume System - an AI-powered professional development platform built on Verba's RAG framework.
 
-## Getting Started
+## 📚 Documentation Structure
+
+### Getting Started
 
 Start here if you're new to the system:
 
-- **[Main README](../README.md)** - Project overview, installation, and quick start
 - **[User Guide](./USER_GUIDE.md)** - Complete guide to using all features
-- **[Configuration Guide](./CONFIGURATION_GUIDE.md)** - How to configure LLM providers and settings
+- **[Docker Setup](./DOCKER_SETUP.md)** - Deploy with Docker Compose
+- **[Configuration Guide](./CONFIGURATION_GUIDE.md)** - LLM providers, settings, and optimization
+- **[Troubleshooting](./TROUBLESHOOTING.md)** - Solutions to common issues
 
-## Feature Guides
+### Feature Documentation
 
-Deep dives into specific features:
+Learn about specific features:
 
 - **[Skill Extraction Guide](./SKILL_EXTRACTION_GUIDE.md)** - Understanding automatic skill extraction and proficiency scoring
-- **[Hybrid Search Guide](./HYBRID_SEARCH.md)** - How the system retrieves relevant experiences for resumes
-- **[API Reference](./API_REFERENCE.md)** - Complete API documentation with examples
-
-## Implementation Documentation
-
-Technical details for developers and advanced users:
-
-- **[Verba Codebase Guide](./VERBA_CODEBASE_GUIDE.md)** - Deep dive into Verba's architecture
-- **[Verba UI Guide](./VERBA_UI_AND_IMPLEMENTATION_GUIDE.md)** - Frontend architecture and components
-- **[Technical Documentation](./TECHNICAL.md)** - Core Verba technical details
-- **[Frontend Documentation](./FRONTEND.md)** - Frontend development guide
-
-## Feature-Specific Implementation
-
-Detailed implementation docs for resume features:
-
-- **[Work Log API Implementation](./WORKLOG_API_IMPLEMENTATION.md)** - Work log management system
-- **[Skill Extraction on Ingestion](./SKILL_EXTRACTION_ON_INGESTION.md)** - Automatic skill extraction during document upload
+- **[Skill Extraction on Ingestion](./SKILL_EXTRACTION_ON_INGESTION.md)** - How skills are extracted during document upload
+- **[Testing Skill Extraction](./TESTING_SKILL_EXTRACTION.md)** - Testing and validating skill extraction
+- **[Hybrid Search](./HYBRID_SEARCH.md)** - How resume generation retrieves relevant experiences
 - **[Metadata Filtering](./METADATA_FILTERING_IMPLEMENTATION.md)** - Document organization and filtering
-- **[Docker Configuration](./DOCKER_CONFIG_CHANGES.md)** - Docker setup modifications
 
-## Deployment
+### API Documentation
 
-Guides for deploying the system:
+For developers and integrators:
 
-- **[Docker Setup Guide](./DOCKER_SETUP.md)** - Complete Docker deployment instructions
-- **[Python Tutorial](./PYTHON_TUTORIAL.md)** - Python environment setup for beginners
+- **[API Reference](./API_REFERENCE.md)** - Complete REST API documentation
+- **[Work Log API Implementation](./WORKLOG_API_IMPLEMENTATION.md)** - Work log management system details
+- **[Python Tutorial](./PYTHON_TUTORIAL.md)** - Using the Python SDK
 
-## Troubleshooting
+### Architecture & Implementation
 
-- **[Troubleshooting Guide](./TROUBLESHOOTING.md)** - Solutions to common issues
-- **[FAQ](../README.md#faq)** - Frequently asked questions
+Deep dives into the system:
 
-## Contributing
+- **[Verba Codebase Guide](./VERBA_CODEBASE_GUIDE.md)** - Understanding Verba's architecture
+- **[Verba UI Guide](./VERBA_UI_AND_IMPLEMENTATION_GUIDE.md)** - Frontend architecture and components
+- **[Schema Extensions](./SCHEMA_EXTENSIONS.md)** - Resume-specific Weaviate collections
+- **[Technical Documentation](./TECHNICAL.md)** - Core Verba technical details
+- **[Frontend Guide](./FRONTEND.md)** - Frontend development guide
 
-- **[Contributing Guide](./CONTRIBUTING.md)** - How to contribute to the project
+### Project Status & Planning
 
----
+Track progress and future plans:
 
-## Quick Reference
+- **[Setup Status](./SETUP_STATUS.md)** - Current implementation status
+- **[What's Next](./WHATS_NEXT.md)** - Roadmap and future enhancements
+- **[Docker Config Changes](./DOCKER_CONFIG_CHANGES.md)** - Docker configuration history
+- **[Contributing](./CONTRIBUTING.md)** - How to contribute to the project
 
-### Common Tasks
+## 🎯 Quick Navigation
 
-**Setting up for the first time:**
-1. Read [Main README](../README.md) - Quick Start section
-2. Follow [Configuration Guide](./CONFIGURATION_GUIDE.md) - Environment Variables
-3. Check [Troubleshooting Guide](./TROUBLESHOOTING.md) if issues arise
+### By Role
 
-**Using work logs and skills:**
-1. [User Guide](./USER_GUIDE.md) - Work Log Management section
-2. [Skill Extraction Guide](./SKILL_EXTRACTION_GUIDE.md) - How it works
-3. [User Guide](./USER_GUIDE.md) - Skills Analysis section
+**End Users:**
+1. [User Guide](./USER_GUIDE.md) - Learn how to use the system
+2. [Skill Extraction Guide](./SKILL_EXTRACTION_GUIDE.md) - Understand skill analysis
+3. [Troubleshooting](./TROUBLESHOOTING.md) - Fix common issues
 
-**Generating resumes:**
-1. [User Guide](./USER_GUIDE.md) - Resume Generation section
-2. [Hybrid Search Guide](./HYBRID_SEARCH.md) - Understanding retrieval
-3. [API Reference](./API_REFERENCE.md) - Resume endpoints
+**Developers:**
+1. [API Reference](./API_REFERENCE.md) - API endpoints and usage
+2. [Verba Codebase Guide](./VERBA_CODEBASE_GUIDE.md) - Architecture overview
+3. [Python Tutorial](./PYTHON_TUTORIAL.md) - SDK usage
 
-**Configuring the system:**
-1. [Configuration Guide](./CONFIGURATION_GUIDE.md) - All settings
-2. [Skill Extraction Guide](./SKILL_EXTRACTION_GUIDE.md) - Customization section
-3. [Docker Setup Guide](./DOCKER_SETUP.md) - Docker-specific config
+**DevOps/Administrators:**
+1. [Docker Setup](./DOCKER_SETUP.md) - Deployment guide
+2. [Configuration Guide](./CONFIGURATION_GUIDE.md) - System configuration
+3. [Troubleshooting](./TROUBLESHOOTING.md) - Operational issues
+
+### By Task
+
+**Setting Up:**
+- [Docker Setup](./DOCKER_SETUP.md) - Docker deployment
+- [Configuration Guide](./CONFIGURATION_GUIDE.md) - Configure LLMs and settings
+
+**Using Features:**
+- [User Guide](./USER_GUIDE.md) - Complete feature walkthrough
+- [Skill Extraction Guide](./SKILL_EXTRACTION_GUIDE.md) - Skills analysis
+- [Hybrid Search](./HYBRID_SEARCH.md) - Resume generation
+
+**Developing:**
+- [API Reference](./API_REFERENCE.md) - API documentation
+- [Verba Codebase Guide](./VERBA_CODEBASE_GUIDE.md) - Code architecture
+- [Contributing](./CONTRIBUTING.md) - Contribution guidelines
 
 **Troubleshooting:**
-1. [Troubleshooting Guide](./TROUBLESHOOTING.md) - Common issues
-2. [FAQ](../README.md#faq) - Frequently asked questions
-3. GitHub Issues - Report bugs or ask questions
+- [Troubleshooting](./TROUBLESHOOTING.md) - Common issues
+- [Setup Status](./SETUP_STATUS.md) - Known limitations
 
-### API Quick Reference
+## 📖 Documentation Conventions
 
-**Work Logs:**
-```bash
-# Create
-POST /api/worklogs
+### File Naming
 
-# List
-GET /api/worklogs?user_id=user123&start_date=2025-01-01
+- `UPPERCASE_WITH_UNDERSCORES.md` - Major documentation files
+- `lowercase_with_underscores.md` - Implementation details
+- `PascalCase.md` - Component-specific docs
 
-# Update
-PUT /api/worklogs/{id}
+### Document Structure
 
-# Delete
-DELETE /api/worklogs/{id}
-```
+Most guides follow this structure:
+1. **Overview** - What this document covers
+2. **Prerequisites** - What you need to know first
+3. **Main Content** - Detailed information
+4. **Examples** - Practical examples
+5. **Troubleshooting** - Common issues
+6. **Related Documentation** - Links to other docs
 
-**Skills:**
-```bash
-# Get breakdown
-GET /api/skills?category=programming
+### Code Examples
 
-# Extract from text
-POST /api/skills/extract
+Code examples use these conventions:
+- `bash` - Shell commands
+- `python` - Python code
+- `typescript` - TypeScript/JavaScript code
+- `json` - Configuration files
+- `yaml` - Docker/config files
 
-# Get categories
-GET /api/skills/categories
-```
+## 🔄 Documentation Updates
 
-**Resumes:**
-```bash
-# Generate
-POST /api/resumes/generate
+This documentation is actively maintained. Last major update: November 2024
 
-# List history
-GET /api/resumes
+### Recent Changes
 
-# Get specific
-GET /api/resumes/{id}
+- Added skill extraction troubleshooting guide
+- Updated API reference with new endpoints
+- Enhanced Docker setup documentation
+- Added resume generation examples
 
-# Export
-POST /api/resumes/{id}/export
+### Contributing to Docs
 
-# Regenerate
-POST /api/resumes/{id}/regenerate
+Found an error or want to improve documentation?
 
-# Delete
-DELETE /api/resumes/{id}
-```
+1. Check [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines
+2. Submit a pull request with your changes
+3. Update this index if adding new documents
 
-See [API Reference](./API_REFERENCE.md) for complete documentation.
+## 📞 Getting Help
 
----
+Can't find what you're looking for?
 
-## Documentation Structure
+1. **Search the docs** - Use your browser's search (Ctrl/Cmd+F)
+2. **Check Troubleshooting** - [Troubleshooting Guide](./TROUBLESHOOTING.md)
+3. **Review examples** - [User Guide](./USER_GUIDE.md) has many examples
+4. **Ask the community** - Create a GitHub issue
+5. **Check Verba docs** - [Verba Documentation](https://github.com/weaviate/Verba)
 
-```
-docs/
-├── README.md (this file)
-│
-├── Getting Started
-│   ├── USER_GUIDE.md
-│   ├── CONFIGURATION_GUIDE.md
-│   └── PYTHON_TUTORIAL.md
-│
-├── Feature Guides
-│   ├── SKILL_EXTRACTION_GUIDE.md
-│   ├── HYBRID_SEARCH.md
-│   └── API_REFERENCE.md
-│
-├── Implementation
-│   ├── VERBA_CODEBASE_GUIDE.md
-│   ├── VERBA_UI_AND_IMPLEMENTATION_GUIDE.md
-│   ├── TECHNICAL.md
-│   ├── FRONTEND.md
-│   ├── WORKLOG_API_IMPLEMENTATION.md
-│   ├── SKILL_EXTRACTION_ON_INGESTION.md
-│   └── METADATA_FILTERING_IMPLEMENTATION.md
-│
-├── Deployment
-│   ├── DOCKER_SETUP.md
-│   └── DOCKER_CONFIG_CHANGES.md
-│
-└── Support
-    ├── TROUBLESHOOTING.md
-    └── CONTRIBUTING.md
-```
+## 🔗 External Resources
+
+### Verba (Core Framework)
+- [Verba GitHub](https://github.com/weaviate/Verba)
+- [Verba Documentation](https://github.com/weaviate/Verba/blob/main/README.md)
+
+### Weaviate (Vector Database)
+- [Weaviate Documentation](https://weaviate.io/developers/weaviate)
+- [Weaviate Community Forum](https://forum.weaviate.io/)
+- [Weaviate Python Client](https://weaviate.io/developers/weaviate/client-libraries/python)
+
+### LLM Providers
+- [OpenAI API Documentation](https://platform.openai.com/docs)
+- [Anthropic Claude Documentation](https://docs.anthropic.com/)
+- [Cohere Documentation](https://docs.cohere.com/)
+- [Ollama Documentation](https://ollama.ai/docs)
 
 ---
 
-## Need Help?
-
-1. **Check the docs** - Most questions are answered here
-2. **Search GitHub Issues** - Someone may have had the same problem
-3. **Create an issue** - Describe your problem with details
-4. **Community forum** - Ask questions and share tips
-
----
-
-## Contributing to Documentation
-
-Found an error or want to improve the docs?
-
-1. Fork the repository
-2. Make your changes
-3. Submit a pull request
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
-
----
-
-## Documentation Versions
-
-This documentation is for Local Resume System v1.0.0 (based on Verba 2.0.0).
-
-For Verba-specific documentation, see the [Verba repository](https://github.com/weaviate/Verba).
+**Need to update this index?** Edit `docs/README.md` and submit a pull request.
